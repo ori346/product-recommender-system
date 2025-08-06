@@ -1,0 +1,76 @@
+name: Build and push image
+
+on:
+  push:
+    branches:
+      - integration-tests
+  workflow_dispatch:
+
+env:
+  BACKEND_DIR: backend
+
+jobs:
+  deploy-and-test:
+    name: Deploy to OpenShift and Run Integration Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install OpenShift CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: "latest"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Login to OpenShift
+        run: |
+          oc login --token=${{ secrets.OPENSHIFT_TOKEN }} --server=${{ secrets.OPENSHIFT_SERVER }}
+       
+      - name: Add Helm repositories
+        run: |
+          helm repo add rh-ai-kickstart https://rh-ai-kickstart.github.io/ai-architecture-charts
+          helm repo add strimzi https://strimzi.io/charts/
+          helm repo update
+          
+      - name: Build Helm dependencies
+        run: |
+          cd helm/product-recommender-system
+          helm dependency build
+          
+      - name: Deploy with Helm using Makefile
+        run: |
+          cd helm
+          make install NAMESPACE=rec-sys-tests
+            
+      - name: Wait for deployment to be ready
+        run: |
+          oc wait --for=condition=available --timeout=15m deployment/product-recommender-system-frontend-backend -n rec-sys-tests
+          
+      - name: Set up Python for integration tests
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install test dependencies
+        run: |
+          cd tests/integration
+          pip install pytest tavern jq
+          
+      - name: Run integration tests
+        run: |
+          cd tests/integration
+          oc project rec-sys-tests
+          chmod +x run_integration_tests.sh
+          ./run_integration_tests.sh
+          
+      - name: Cleanup deployment
+        run: |
+          echo "Cleaning up deployment resources..."
+          cd helm
+          make uninstall NAMESPACE=rec-sys-tests || echo "Make uninstall failed or release not found"
