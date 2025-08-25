@@ -115,8 +115,6 @@ spec:
         value: 'batch_training'
       - name: EXPERIMENT_NAME
         value: 'Default'
-      - name: RUN_NAME
-        value: '{{ now | date "2006_01_02_15_04_05" }}'
       - name: DS_PIPELINE_URL
         value: https://ds-pipeline-dspa.{{ .Release.Namespace }}.svc.cluster.local:8888
       - name: DB_SECRET_NAME
@@ -133,6 +131,6 @@ spec:
         value: {{ .Values.datasetUrl }}
     {{- include "product-recommender-system.feastEnv" . | nindent 6 }}
     command: ['/bin/sh']
-    args: ['-c', './entrypoint.sh']
+    args: ['-c', 'export RUN_NAME="batch_training_$(date +%Y_%m_%d_%H_%M_%S)" && ./entrypoint.sh']
   restartPolicy: Never
 {{- end }}

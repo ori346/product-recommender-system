@@ -12,13 +12,13 @@ spec:
     {{- include "product-recommender-system.pipeline-job-template" . | nindent 4 }}
 {{- end }}
 ---
-{{- $cornJobName := "kfp-run-job" }}
-{{- $existingCornJob := (lookup "batch/v1" "CronJob" .Release.Namespace $cornJobName) }}
-{{- if not $existingJob }}
+{{- $cronJobName := "kfp-run-job" }}
+{{- $existingCronJob := (lookup "batch/v1" "CronJob" .Release.Namespace $cronJobName) }}
+{{- if not $existingCronJob }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ $cornJobName }}
+  name: {{ $cronJobName }}
   labels:
     pipelines.kubeflow.org/v2_component: 'true'
 spec:
