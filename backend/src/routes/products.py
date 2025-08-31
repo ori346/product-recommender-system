@@ -47,7 +47,7 @@ async def get_product(
         db=db,
         user_id=user_id.user_id,
         item_id=product_id,
-        interaction_type=InteractionType.POSITIVE_VIEW_VIEW.value,
+        interaction_type=InteractionType.POSITIVE_VIEW.value,
     )
 
     try:
