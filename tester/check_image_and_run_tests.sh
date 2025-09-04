@@ -114,15 +114,18 @@ echo ""
 echo "=== Step 4: Running Integration Tests ==="
 cd /app/tests/integration
 
-# Run integration tests, display in real-time, and capture output
+# Run integration tests and capture output
 echo "Running integration tests and capturing output..."
-TEST_OUTPUT=$(NAMESPACE=rec-sys-ofridman bash run_integration_tests.sh 2>&1 | tee /dev/stdout)
-TEST_EXIT_CODE=${PIPESTATUS[0]}
+TEST_OUTPUT=$(NAMESPACE=rec-sys-ofridman bash run_integration_tests.sh 2>&1)
+TEST_EXIT_CODE=$?
+
+# Escape the output for JSON and create a proper payload
+ESCAPED_OUTPUT=$(echo "$TEST_OUTPUT" | jq -Rs .)
+
+echo "Escaped output: $ESCAPED_OUTPUT"
 
 # Send output to Slack
 echo "Sending test results to Slack..."
-# Escape the output for JSON and create a proper payload
-ESCAPED_OUTPUT=$(echo "$TEST_OUTPUT" | jq -Rs .)
 curl -X POST -H 'Content-type: application/json' --data "{\"text\": $ESCAPED_OUTPUT}" $SLACK_WEBHOOK
 
 # Check if tests failed
