@@ -15,14 +15,27 @@ validate_url() {
     return 0
 }
 
-# Get URLs dynamically
-export TEST_FRONTEND_URL=$(oc get routes product-recommender-system-frontend -o json | jq -r '"https://" + .spec.host')
-export TEST_FEAST_URL=$(oc get routes feast-feast-recommendation-ui -o json | jq -r '"https://" + .spec.host')
+# Set namespace - use NAMESPACE env var if set, otherwise use current project
+if [ -z "$NAMESPACE" ]; then
+    NAMESPACE=$(oc project -q 2>/dev/null)
+    if [ -z "$NAMESPACE" ]; then
+        echo "❌ Error: Unable to determine current namespace. Please set NAMESPACE environment variable or ensure you're logged into OpenShift."
+        exit 1
+    fi
+    echo "ℹ️  Using current namespace: $NAMESPACE"
+else
+    echo "ℹ️  Using specified namespace: $NAMESPACE"
+fi
+
+# Get URLs dynamically using the namespace
+export TEST_FRONTEND_URL=$(oc get routes product-recommender-system-frontend -n "$NAMESPACE" -o json | jq -r '"https://" + .spec.host')
+export TEST_FEAST_URL=$(oc get routes feast-feast-recommendation-ui -n "$NAMESPACE" -o json | jq -r '"https://" + .spec.host')
 
 # Generate unique timestamp for test emails
 export TEST_TIMESTAMP=$(date +%s)
 
 echo "Testing with:"
+echo "Namespace: $NAMESPACE"
 echo "Frontend URL: $TEST_FRONTEND_URL"
 echo "Feast URL: $TEST_FEAST_URL"
 echo ""
@@ -61,5 +74,32 @@ fi
 
 echo ""
 
-# Run pytest with the determined target
+# Run pytest with the determined target and capture exit code
 PYTHONPATH=. pytest "$TEST_TARGET" -v
+PYTEST_EXIT_CODE=$?
+
+echo ""
+echo "Pytest exit code: $PYTEST_EXIT_CODE"
+
+if [ $PYTEST_EXIT_CODE -eq 0 ]; then
+    echo "✅ All tests passed successfully!"
+    exit 0
+elif [ $PYTEST_EXIT_CODE -eq 1 ]; then
+    echo "❌ Some tests failed"
+    exit 1
+elif [ $PYTEST_EXIT_CODE -eq 2 ]; then
+    echo "⚠️  Test execution was interrupted"
+    exit 2
+elif [ $PYTEST_EXIT_CODE -eq 3 ]; then
+    echo "💥 Internal pytest error occurred"
+    exit 3
+elif [ $PYTEST_EXIT_CODE -eq 4 ]; then
+    echo "🚫 Pytest was misused"
+    exit 4
+elif [ $PYTEST_EXIT_CODE -eq 5 ]; then
+    echo "📭 No tests were collected"
+    exit 5
+else
+    echo "❓ Unknown pytest exit code: $PYTEST_EXIT_CODE"
+    exit $PYTEST_EXIT_CODE
+fi
