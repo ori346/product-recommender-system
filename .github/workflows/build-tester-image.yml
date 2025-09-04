@@ -42,7 +42,7 @@ jobs:
       - name: Build and push tester image
         uses: docker/build-push-action@v5
         with:
-          context: ..
+          context: .
           file: ${{ env.TESTER_DIR }}/Containerfile
           push: true
           tags: |
