@@ -15,7 +15,7 @@ interface SearchResultsPageProps {
 export function SearchResultsPage({ query }: SearchResultsPageProps) {
   const { data, error, isLoading } = useProductSearch(query, query.length > 0);
 
-  const allProducts = data ? data : [];
+  const products = data ? data : [];
 
   if (!query) {
     return (

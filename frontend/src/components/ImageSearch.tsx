@@ -28,12 +28,12 @@ export const ImageSearch: React.FC = () => {
     data: urlData,
     error: urlError,
     isLoading: urlLoading,
-  } = useProductSearchByImageLink(urlSearchTrigger, 1200, !!urlSearchTrigger);
+  } = useProductSearchByImageLink(urlSearchTrigger, 10, !!urlSearchTrigger);
   const {
     data: fileData,
     error: fileError,
     isLoading: fileLoading,
-  } = useProductSearchByImage(fileSearchTrigger, 1200, !!fileSearchTrigger);
+  } = useProductSearchByImage(fileSearchTrigger, 10, !!fileSearchTrigger);
 
   // Use the appropriate data/error/loading based on search type
   const data = searchType === 'url' ? urlData : fileData;

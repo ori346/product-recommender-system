@@ -4,8 +4,7 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import { resolve } from 'path';
 
 // Global target URL - change this to switch between local and OpenShift
-// const TARGET = 'http://localhost:8000';
-const TARGET = 'https://product-recommender-system-frontend-rec-sys-ofridman.apps.ai-dev02.kni.syseng.devcluster.openshift.com';
+const TARGET = 'http://localhost:8000';
 
 // https://vitejs.dev/config/
 export default defineConfig({

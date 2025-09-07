@@ -33,7 +33,7 @@ export const usePersonalizedRecommendations = () => {
       }
 
       if (hasInteractionHistory) {
-        return fetchExistingUserRecommendations(user.user_id, 1200);
+        return fetchExistingUserRecommendations(user.user_id);
       } else {
         return fetchNewUserRecommendations(user.user_id);
       }
@@ -54,7 +54,7 @@ export const useExistingUserRecommendations = (userId: string) => {
 // Recommendations for users without interaction history (cold start)
 export const useNewUserRecommendations = (
   userId: string,
-  numRecommendations: number = 18
+  numRecommendations: number = 10
 ) => {
   return useQuery({
     queryKey: ['recommendations', 'new-user', userId, numRecommendations],
