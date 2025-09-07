@@ -14,3 +14,27 @@
   /* Optional: Style individual slides */
   padding: 8px;
 }
+
+/* Ensure consistent gallery layout with 6 products per row */
+.gallery-container .pf-v6-c-gallery {
+  --pf-v6-c-gallery--GridTemplateColumns: repeat(6, 1fr);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .gallery-container .pf-v6-c-gallery {
+    --pf-v6-c-gallery--GridTemplateColumns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .gallery-container .pf-v6-c-gallery {
+    --pf-v6-c-gallery--GridTemplateColumns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-container .pf-v6-c-gallery {
+    --pf-v6-c-gallery--GridTemplateColumns: repeat(1, 1fr);
+  }
+}

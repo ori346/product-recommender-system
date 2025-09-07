@@ -3,6 +3,10 @@ import react from '@vitejs/plugin-react';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import { resolve } from 'path';
 
+// Global target URL - change this to switch between local and OpenShift
+// const TARGET = 'http://localhost:8000';
+const TARGET = 'https://product-recommender-system-frontend-rec-sys-ofridman.apps.ai-dev02.kni.syseng.devcluster.openshift.com';
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -19,44 +23,43 @@ export default defineConfig({
   server: {
     proxy: {
       '/auth': {
-        target: 'http://localhost:8000',
+        target: TARGET,
         changeOrigin: true,
       },
       '/products': {
-        target: 'http://localhost:8000',
+        target: TARGET,
         changeOrigin: true,
       },
       '/recommendations': {
-        target: 'http://localhost:8000',
+        target: TARGET,
         changeOrigin: true,
       },
       '/users': {
-        target: 'http://localhost:8000',
+        target: TARGET,
         changeOrigin: true,
       },
       '/interactions': {
-        target: 'http://localhost:8000',
+        target: TARGET,
         changeOrigin: true,
       },
       '/cart': {
-        target: 'http://localhost:8000',
+        target: TARGET,
         changeOrigin: true,
       },
       '/orders': {
-        target: 'http://localhost:8000',
+        target: TARGET,
         changeOrigin: true,
       },
       '/checkout': {
-        target: 'http://localhost:8000',
+        target: TARGET,
         changeOrigin: true,
       },
-
       '/feedback': {
-        target: 'http://localhost:8000',
+        target: TARGET,
         changeOrigin: true,
       },
       '/health': {
-        target: 'http://localhost:8000',
+        target: TARGET,
         changeOrigin: true,
       },
     },

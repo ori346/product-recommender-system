@@ -20,7 +20,7 @@ export const searchProducts = async (query: string): Promise<ProductData[]> => {
 
 export const searchProductsByText = async (
   query: string,
-  k: number = 5
+  k: number = 18
 ): Promise<ProductData[]> => {
   ServiceLogger.logServiceCall('searchProductsByText', { query, k });
   return apiRequest<ProductData[]>(
@@ -31,7 +31,7 @@ export const searchProductsByText = async (
 
 export const searchProductsByImageLink = async (
   imageUrl: string,
-  numRecommendations: number = 10
+  numRecommendations: number = 18
 ): Promise<ProductData[]> => {
   ServiceLogger.logServiceCall('searchProductsByImageLink', {
     imageUrl,
@@ -64,7 +64,7 @@ export const searchProductsByImageLink = async (
 
 export const searchProductsByImage = async (
   imageFile: File,
-  k: number = 5
+  k: number = 18
 ): Promise<ProductData[]> => {
   ServiceLogger.logServiceCall('searchProductsByImage', {
     fileName: imageFile.name,

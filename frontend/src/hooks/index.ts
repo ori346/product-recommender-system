@@ -13,3 +13,4 @@ export * from './useInteractions';
 export * from './useComposite';
 export * from './useOptimistic';
 export { useAuth, useLogin, useSignup, useLogout } from './useAuth';
+export { useLazyScroll } from './useLazyScroll';

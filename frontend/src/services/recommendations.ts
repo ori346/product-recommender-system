@@ -6,11 +6,12 @@ import { apiRequest, ServiceLogger } from './api';
  * These recommendations use the user's past behavior to suggest relevant products
  */
 export const fetchExistingUserRecommendations = async (
-  userId: string
+  userId: string,
+  numRecommendations: number = 1200
 ): Promise<ProductData[]> => {
-  ServiceLogger.logServiceCall('fetchExistingUserRecommendations', { userId });
+  ServiceLogger.logServiceCall('fetchExistingUserRecommendations', { userId, numRecommendations });
   return apiRequest<ProductData[]>(
-    `/recommendations/${userId}`,
+    `/recommendations/${userId}?num_recommendations=${numRecommendations}`,
     'fetchExistingUserRecommendations'
   );
 };
@@ -20,7 +21,7 @@ export const fetchExistingUserRecommendations = async (
  * This triggers the backend to generate initial recommendations for new users
  */
 export const createNewUserRecommendations = async (
-  numRecommendations: number = 10
+  numRecommendations: number = 1200
 ): Promise<ProductData[]> => {
   ServiceLogger.logServiceCall('createNewUserRecommendations', {
     numRecommendations,
@@ -42,7 +43,7 @@ export const createNewUserRecommendations = async (
  */
 export const fetchNewUserRecommendations = async (
   userId: string,
-  numRecommendations: number = 10
+  numRecommendations: number = 1200
 ): Promise<ProductData[]> => {
   ServiceLogger.logServiceCall('fetchNewUserRecommendations', {
     userId,
