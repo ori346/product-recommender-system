@@ -7,7 +7,7 @@ export function LandingPage() {
   const { isAuthenticated } = useAuth();
   const { data, isLoading, error } = usePersonalizedRecommendations();
 
-  const allProducts = data ? data : [];
+  const products = data ? data : [];
 
   // If not authenticated, show a message prompting to log in
   if (!isAuthenticated) {
@@ -52,7 +52,7 @@ export function LandingPage() {
       </PageSection>
       
       <LazyProductGallery 
-        products={allProducts}
+        products={products}
         showProductCount={true}
         showScrollToTop={true}
         initialBatchSize={36}

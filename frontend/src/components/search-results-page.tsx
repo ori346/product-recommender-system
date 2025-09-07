@@ -64,8 +64,8 @@ export function SearchResultsPage({ query }: SearchResultsPageProps) {
         <Title headingLevel={'h1'} style={{ marginTop: '15px' }}>
           Search Results for "{query}"
         </Title>
-        
-        {allProducts.length === 0 ? (
+
+        {products.length === 0 ? (
           <EmptyState>
             <Title headingLevel='h4' size='lg'>
               No products found
@@ -77,7 +77,7 @@ export function SearchResultsPage({ query }: SearchResultsPageProps) {
           </EmptyState>
         ) : (
           <LazyProductGallery 
-            products={allProducts}
+            products={products}
             showProductCount={true}
             showScrollToTop={true}
           />

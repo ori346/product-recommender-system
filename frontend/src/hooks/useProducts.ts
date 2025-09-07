@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   fetchProduct,
+  searchProducts,
   searchProductsByText,
   searchProductsByImageLink,
   searchProductsByImage,
@@ -18,7 +19,7 @@ export const useProduct = (productId: string) => {
 export const useProductSearch = (query: string, enabled: boolean = true) => {
   return useQuery({
     queryKey: ['products', 'search', query],
-    queryFn: () => searchProductsByText(query, 1200), // Use searchProductsByText with 100 results
+    queryFn: () => searchProducts(query),
     enabled: enabled && !!query && query.trim().length > 0,
     staleTime: 2 * 60 * 1000, // Override: search results change more frequently
   });
@@ -26,11 +27,11 @@ export const useProductSearch = (query: string, enabled: boolean = true) => {
 
 export const useProductSearchByText = (
   query: string,
-  k: number = 18,
+  k: number = 5,
   enabled: boolean = true
 ) => {
   return useQuery({
-    queryKey: ['products', 'search', 'text', query, k],
+    queryKey: ['products', 'search', query, k],
     queryFn: () => searchProductsByText(query, k),
     enabled: enabled && !!query && query.trim().length > 0,
     staleTime: 2 * 60 * 1000,
@@ -39,7 +40,7 @@ export const useProductSearchByText = (
 
 export const useProductSearchByImageLink = (
   imageLink: string,
-  k: number = 18,
+  k: number = 10,
   enabled: boolean = true
 ) => {
   return useQuery({
@@ -52,7 +53,7 @@ export const useProductSearchByImageLink = (
 
 export const useProductSearchByImage = (
   imageFile: File | null,
-  k: number = 18,
+  k: number = 10,
   enabled: boolean = true
 ) => {
   return useQuery({
@@ -69,5 +70,3 @@ export const useProductSearchByImage = (
     staleTime: 2 * 60 * 1000,
   });
 };
-
-

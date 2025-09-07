@@ -25,7 +25,7 @@ interface UseLazyScrollReturn {
  * Supports order by rank and maintains product order
  */
 export const useLazyScroll = (
-  allProducts: ProductData[],
+  products: ProductData[],
   options: UseLazyScrollOptions = {}
 ): UseLazyScrollReturn => {
   const {
@@ -44,13 +44,13 @@ export const useLazyScroll = (
   const loadingRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const hasMoreProducts = currentIndex < allProducts.length;
+  const hasMoreProducts = currentIndex < products.length;
 
-  // Reset displayed products when allProducts change
+  // Reset displayed products when products change
   useEffect(() => {
-    setDisplayedProducts(allProducts.slice(0, initialBatchSize));
+    setDisplayedProducts(products.slice(0, initialBatchSize));
     setCurrentIndex(initialBatchSize);
-  }, [allProducts, initialBatchSize]);
+  }, [products, initialBatchSize]);
 
   const loadMoreProducts = useCallback(() => {
     if (!hasMoreProducts || isLoadingMore) return;
@@ -59,12 +59,12 @@ export const useLazyScroll = (
     
     // Simulate loading delay for better UX
     setTimeout(() => {
-      const nextBatch = allProducts.slice(currentIndex, currentIndex + batchSize);
+      const nextBatch = products.slice(currentIndex, currentIndex + batchSize);
       setDisplayedProducts(prev => [...prev, ...nextBatch]);
       setCurrentIndex(prev => prev + batchSize);
       setIsLoadingMore(false);
     }, loadingDelay);
-  }, [allProducts, currentIndex, hasMoreProducts, isLoadingMore, batchSize, loadingDelay]);
+  }, [products, currentIndex, hasMoreProducts, isLoadingMore, batchSize, loadingDelay]);
 
   const scrollToTop = useCallback(() => {
     if (containerRef.current) {
@@ -73,10 +73,10 @@ export const useLazyScroll = (
   }, []);
 
   const reset = useCallback(() => {
-    setDisplayedProducts(allProducts.slice(0, initialBatchSize));
+    setDisplayedProducts(products.slice(0, initialBatchSize));
     setCurrentIndex(initialBatchSize);
     setIsLoadingMore(false);
-  }, [allProducts, initialBatchSize]);
+  }, [products, initialBatchSize]);
 
   // Set up intersection observer for infinite scroll
   useEffect(() => {

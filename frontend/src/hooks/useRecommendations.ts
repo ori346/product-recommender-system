@@ -35,7 +35,7 @@ export const usePersonalizedRecommendations = () => {
       if (hasInteractionHistory) {
         return fetchExistingUserRecommendations(user.user_id, 1200);
       } else {
-        return fetchNewUserRecommendations(user.user_id, 1200);
+        return fetchNewUserRecommendations(user.user_id);
       }
     },
     enabled: isAuthenticated && !!user?.user_id,

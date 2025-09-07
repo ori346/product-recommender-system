@@ -15,7 +15,6 @@ interface ImageSearchResultsProps {
 }
 
 export function ImageSearchResults({ products, isLoading, error }: ImageSearchResultsProps) {
-  const allProducts = products || [];
 
   if (isLoading) {
     return (
@@ -70,7 +69,7 @@ export function ImageSearchResults({ products, isLoading, error }: ImageSearchRe
           Similar Products Found
         </Title>
         
-        {allProducts.length === 0 ? (
+        {products.length === 0 ? (
           <EmptyState>
             <Title headingLevel='h4' size='lg'>
               No similar products found
@@ -81,7 +80,7 @@ export function ImageSearchResults({ products, isLoading, error }: ImageSearchRe
           </EmptyState>
         ) : (
           <LazyProductGallery 
-            products={allProducts}
+            products={products}
             showProductCount={true}
             showScrollToTop={true}
           />

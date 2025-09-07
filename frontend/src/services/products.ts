@@ -64,7 +64,7 @@ export const searchProductsByImageLink = async (
 
 export const searchProductsByImage = async (
   imageFile: File,
-  k: number = 18
+  k: number = 10
 ): Promise<ProductData[]> => {
   ServiceLogger.logServiceCall('searchProductsByImage', {
     fileName: imageFile.name,

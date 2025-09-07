@@ -111,8 +111,7 @@ export const LazyProductGallery: React.FC<LazyProductGalleryProps> = ({
           style={{
             position: 'fixed',
             bottom: '30px',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            right: '30px',
             zIndex: 9999,
             borderRadius: '50%',
             width: '60px',
