@@ -50,8 +50,8 @@ export function LandingPage() {
           Recommended for You
         </Title>
       </PageSection>
-      
-      <LazyProductGallery 
+
+      <LazyProductGallery
         products={products}
         showProductCount={true}
         showScrollToTop={true}

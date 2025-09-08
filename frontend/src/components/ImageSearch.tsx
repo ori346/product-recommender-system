@@ -218,7 +218,11 @@ export const ImageSearch: React.FC = () => {
 
       {/* Display results or loading state */}
       {(urlSearchTrigger || fileSearchTrigger) && (
-        <ImageSearchResults products={data || []} isLoading={isLoading} error={error} />
+        <ImageSearchResults
+          products={data || []}
+          isLoading={isLoading}
+          error={error}
+        />
       )}
     </div>
   );

@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  Spinner,
-  Button,
-  ButtonVariant,
-} from '@patternfly/react-core';
+import { Spinner, Button, ButtonVariant } from '@patternfly/react-core';
 import { ArrowUpIcon } from '@patternfly/react-icons';
 import { GalleryView } from './Gallery';
 import { useLazyScroll } from '../hooks/useLazyScroll';
@@ -51,38 +47,46 @@ export const LazyProductGallery: React.FC<LazyProductGalleryProps> = ({
     <div className={className}>
       {title && (
         <div ref={containerRef}>
-          <h2 style={{
-            textAlign: 'center',
-            marginBottom: '24px',
-            color: '#2c3e50',
-            fontWeight: '600',
-          }}>
+          <h2
+            style={{
+              textAlign: 'center',
+              marginBottom: '24px',
+              color: '#2c3e50',
+              fontWeight: '600',
+            }}
+          >
             {title}
           </h2>
           {showProductCount && (
-            <div style={{ marginBottom: '16px', textAlign: 'center', color: '#666' }}>
+            <div
+              style={{
+                marginBottom: '16px',
+                textAlign: 'center',
+                color: '#666',
+              }}
+            >
               Showing {displayedProducts.length} of {products.length} products
             </div>
           )}
         </div>
       )}
-      
+
       <GalleryView products={displayedProducts} />
-      
+
       {/* Loading indicator for infinite scroll */}
       {hasMoreProducts && (
-        <div 
+        <div
           ref={loadingRef}
-          style={{ 
-            textAlign: 'center', 
+          style={{
+            textAlign: 'center',
             marginTop: '32px',
             marginBottom: '32px',
-            padding: '20px'
+            padding: '20px',
           }}
         >
           {isLoadingMore && (
             <div>
-              <Spinner size="md" />
+              <Spinner size='md' />
               <div style={{ marginTop: '8px', color: '#666' }}>
                 Loading more products...
               </div>
@@ -90,14 +94,16 @@ export const LazyProductGallery: React.FC<LazyProductGalleryProps> = ({
           )}
         </div>
       )}
-      
+
       {!hasMoreProducts && products.length > 0 && (
-        <div style={{ 
-          textAlign: 'center', 
-          marginTop: '32px',
-          color: '#666',
-          fontStyle: 'italic'
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            marginTop: '32px',
+            color: '#666',
+            fontStyle: 'italic',
+          }}
+        >
           All {products.length} products have been loaded
         </div>
       )}

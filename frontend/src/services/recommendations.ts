@@ -6,7 +6,7 @@ import { apiRequest, ServiceLogger } from './api';
  * These recommendations use the user's past behavior to suggest relevant products
  */
 export const fetchExistingUserRecommendations = async (
-  userId: string,
+  userId: string
 ): Promise<ProductData[]> => {
   ServiceLogger.logServiceCall('fetchExistingUserRecommendations', { userId });
   return apiRequest<ProductData[]>(

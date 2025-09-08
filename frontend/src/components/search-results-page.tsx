@@ -76,7 +76,7 @@ export function SearchResultsPage({ query }: SearchResultsPageProps) {
             </EmptyStateBody>
           </EmptyState>
         ) : (
-          <LazyProductGallery 
+          <LazyProductGallery
             products={products}
             showProductCount={true}
             showScrollToTop={true}

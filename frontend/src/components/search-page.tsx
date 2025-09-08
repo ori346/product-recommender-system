@@ -24,9 +24,9 @@ export function SearchPage() {
       ) : isError ? (
         <div>Error fetching products</div>
       ) : (
-        <LazyProductGallery 
+        <LazyProductGallery
           products={data ?? []}
-          title="Recommended Products"
+          title='Recommended Products'
           showProductCount={true}
           showScrollToTop={true}
         />

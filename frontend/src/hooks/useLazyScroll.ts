@@ -39,7 +39,7 @@ export const useLazyScroll = (
   const [displayedProducts, setDisplayedProducts] = useState<ProductData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(initialBatchSize);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  
+
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -56,7 +56,7 @@ export const useLazyScroll = (
     if (!hasMoreProducts || isLoadingMore) return;
 
     setIsLoadingMore(true);
-    
+
     // Simulate loading delay for better UX
     setTimeout(() => {
       const nextBatch = products.slice(currentIndex, currentIndex + batchSize);
@@ -64,7 +64,14 @@ export const useLazyScroll = (
       setCurrentIndex(prev => prev + batchSize);
       setIsLoadingMore(false);
     }, loadingDelay);
-  }, [products, currentIndex, hasMoreProducts, isLoadingMore, batchSize, loadingDelay]);
+  }, [
+    products,
+    currentIndex,
+    hasMoreProducts,
+    isLoadingMore,
+    batchSize,
+    loadingDelay,
+  ]);
 
   const scrollToTop = useCallback(() => {
     if (containerRef.current) {
@@ -83,7 +90,7 @@ export const useLazyScroll = (
     if (!loadingRef.current || !hasMoreProducts) return;
 
     observerRef.current = new IntersectionObserver(
-      (entries) => {
+      entries => {
         const [entry] = entries;
         if (entry.isIntersecting && hasMoreProducts && !isLoadingMore) {
           loadMoreProducts();

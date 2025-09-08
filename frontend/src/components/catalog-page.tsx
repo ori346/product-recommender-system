@@ -17,7 +17,7 @@ export function CatalogPage() {
         {isLoading ? (
           <GallerySkeleton count={12} />
         ) : (
-          <LazyProductGallery 
+          <LazyProductGallery
             products={products}
             showProductCount={true}
             showScrollToTop={true}

@@ -14,8 +14,11 @@ interface ImageSearchResultsProps {
   error: any;
 }
 
-export function ImageSearchResults({ products, isLoading, error }: ImageSearchResultsProps) {
-
+export function ImageSearchResults({
+  products,
+  isLoading,
+  error,
+}: ImageSearchResultsProps) {
   if (isLoading) {
     return (
       <PageSection hasBodyWrapper={false}>
@@ -23,7 +26,7 @@ export function ImageSearchResults({ products, isLoading, error }: ImageSearchRe
           Similar Products Found
         </Title>
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
-          <Spinner size="lg" />
+          <Spinner size='lg' />
           <div style={{ marginTop: '16px', color: '#666' }}>
             Loading similar products...
           </div>
@@ -68,18 +71,19 @@ export function ImageSearchResults({ products, isLoading, error }: ImageSearchRe
         <Title headingLevel={'h1'} style={{ marginTop: '15px' }}>
           Similar Products Found
         </Title>
-        
+
         {products.length === 0 ? (
           <EmptyState>
             <Title headingLevel='h4' size='lg'>
               No similar products found
             </Title>
             <EmptyStateBody>
-              No similar products found. Try a different image or search criteria.
+              No similar products found. Try a different image or search
+              criteria.
             </EmptyStateBody>
           </EmptyState>
         ) : (
-          <LazyProductGallery 
+          <LazyProductGallery
             products={products}
             showProductCount={true}
             showScrollToTop={true}
