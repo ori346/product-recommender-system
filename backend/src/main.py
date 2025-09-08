@@ -10,7 +10,7 @@ from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from routes import auth, cart, health, preferences, products, recommendations
+from routes import auth, cart, health, preferences, products, recommendations, reviews
 
 # Configure logging
 logging.basicConfig(
@@ -56,6 +56,7 @@ app.include_router(preferences.router)
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(products.router)
+app.include_router(reviews.router)
 # app.include_router(interactions.router)
 app.include_router(recommendations.router)
 app.include_router(cart.router)
