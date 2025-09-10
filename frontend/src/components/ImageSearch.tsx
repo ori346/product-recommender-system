@@ -4,9 +4,6 @@ import {
   InputGroup,
   TextInput,
   Tooltip,
-  EmptyState,
-  EmptyStateBody,
-  Title,
   ToggleGroup,
   ToggleGroupItem,
   FileUpload,
@@ -16,8 +13,7 @@ import {
   useProductSearchByImageLink,
   useProductSearchByImage,
 } from '../hooks/useProducts';
-import { GalleryView } from './Gallery';
-import { GallerySkeleton } from './gallery-skeleton';
+import { ImageSearchResults } from './image-search-results';
 
 export const ImageSearch: React.FC = () => {
   const [searchType, setSearchType] = useState<'url' | 'file'>('url');
@@ -221,88 +217,13 @@ export const ImageSearch: React.FC = () => {
       )}
 
       {/* Display results or loading state */}
-      {isLoading || isSearching ? (
-        <div style={{ marginTop: '24px' }}>
-          <GallerySkeleton count={8} />
-        </div>
-      ) : error ? (
-        <div
-          style={{
-            background: '#fff5f5',
-            border: '1px solid #fed7d7',
-            borderRadius: '12px',
-            padding: '24px',
-            textAlign: 'center',
-            marginTop: '24px',
-          }}
-        >
-          <EmptyState>
-            <Title
-              headingLevel='h4'
-              size='lg'
-              style={{ color: '#c53030', marginBottom: '12px' }}
-            >
-              Error searching for similar products
-            </Title>
-            <EmptyStateBody style={{ color: '#742a2a' }}>
-              There was an error while searching. Please try again.
-              {error instanceof Error && (
-                <div
-                  style={{
-                    marginTop: '8px',
-                    fontStyle: 'italic',
-                    fontSize: '14px',
-                    opacity: 0.8,
-                  }}
-                >
-                  {error.message}
-                </div>
-              )}
-            </EmptyStateBody>
-          </EmptyState>
-        </div>
-      ) : data && data.length > 0 ? (
-        <div style={{ marginTop: '32px' }}>
-          <Title
-            headingLevel='h2'
-            size='xl'
-            style={{
-              textAlign: 'center',
-              marginBottom: '24px',
-              color: '#2c3e50',
-              fontWeight: '600',
-            }}
-          >
-            Similar Products Found
-          </Title>
-          <GalleryView products={data} />
-        </div>
-      ) : urlSearchTrigger || fileSearchTrigger ? (
-        <div
-          style={{
-            background: '#f7fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            padding: '24px',
-            textAlign: 'center',
-            marginTop: '24px',
-          }}
-        >
-          <EmptyState>
-            <Title
-              headingLevel='h4'
-              size='lg'
-              style={{ color: '#4a5568', marginBottom: '12px' }}
-            >
-              No similar products found
-            </Title>
-            <EmptyStateBody style={{ color: '#718096' }}>
-              Try a different image {searchType === 'url' ? 'URL' : 'file'} or
-              search using text instead.
-            </EmptyStateBody>
-          </EmptyState>
-        </div>
-      ) : null}
+      {(urlSearchTrigger || fileSearchTrigger) && (
+        <ImageSearchResults
+          products={data || []}
+          isLoading={isLoading}
+          error={error}
+        />
+      )}
     </div>
   );
 };

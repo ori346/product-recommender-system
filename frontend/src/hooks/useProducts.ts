@@ -31,7 +31,7 @@ export const useProductSearchByText = (
   enabled: boolean = true
 ) => {
   return useQuery({
-    queryKey: ['products', 'search', 'text', query, k],
+    queryKey: ['products', 'search', query, k],
     queryFn: () => searchProductsByText(query, k),
     enabled: enabled && !!query && query.trim().length > 0,
     staleTime: 2 * 60 * 1000,

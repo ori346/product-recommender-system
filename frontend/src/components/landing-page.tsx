@@ -1,11 +1,13 @@
 import { PageSection, Title, Spinner, Alert } from '@patternfly/react-core';
-import { GalleryView } from './Gallery';
+import { LazyProductGallery } from './LazyProductGallery';
 import { usePersonalizedRecommendations } from '../hooks/useRecommendations';
 import { useAuth } from '../contexts/AuthProvider';
 
 export function LandingPage() {
   const { isAuthenticated } = useAuth();
   const { data, isLoading, error } = usePersonalizedRecommendations();
+
+  const products = data ? data : [];
 
   // If not authenticated, show a message prompting to log in
   if (!isAuthenticated) {
@@ -48,7 +50,15 @@ export function LandingPage() {
           Recommended for You
         </Title>
       </PageSection>
-      <GalleryView products={data || []} />
+
+      <LazyProductGallery
+        products={products}
+        showProductCount={true}
+        showScrollToTop={true}
+        initialBatchSize={36}
+        batchSize={36}
+        loadingDelay={0}
+      />
     </>
   );
 }

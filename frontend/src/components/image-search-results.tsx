@@ -1,44 +1,36 @@
 import {
   PageSection,
   Title,
+  Spinner,
   EmptyState,
   EmptyStateBody,
 } from '@patternfly/react-core';
 import { LazyProductGallery } from './LazyProductGallery';
-import { GallerySkeleton } from './gallery-skeleton';
-import { useProductSearch } from '../hooks';
+import type { ProductData } from '../types';
 
-interface SearchResultsPageProps {
-  query: string;
+interface ImageSearchResultsProps {
+  products: ProductData[];
+  isLoading: boolean;
+  error: any;
 }
 
-export function SearchResultsPage({ query }: SearchResultsPageProps) {
-  const { data, error, isLoading } = useProductSearch(query, query.length > 0);
-
-  const products = data ? data : [];
-
-  if (!query) {
-    return (
-      <PageSection hasBodyWrapper={false}>
-        <EmptyState>
-          <Title headingLevel='h4' size='lg'>
-            No search query provided
-          </Title>
-          <EmptyStateBody>
-            Please enter a search term to find products.
-          </EmptyStateBody>
-        </EmptyState>
-      </PageSection>
-    );
-  }
-
+export function ImageSearchResults({
+  products,
+  isLoading,
+  error,
+}: ImageSearchResultsProps) {
   if (isLoading) {
     return (
       <PageSection hasBodyWrapper={false}>
         <Title headingLevel={'h1'} style={{ marginTop: '15px' }}>
-          Search Results for "{query}"
+          Similar Products Found
         </Title>
-        <GallerySkeleton count={8} />
+        <div style={{ textAlign: 'center', marginTop: '32px' }}>
+          <Spinner size='lg' />
+          <div style={{ marginTop: '16px', color: '#666' }}>
+            Loading similar products...
+          </div>
+        </div>
       </PageSection>
     );
   }
@@ -46,12 +38,27 @@ export function SearchResultsPage({ query }: SearchResultsPageProps) {
   if (error) {
     return (
       <PageSection hasBodyWrapper={false}>
+        <Title headingLevel={'h1'} style={{ marginTop: '15px' }}>
+          Similar Products Found
+        </Title>
         <EmptyState>
           <Title headingLevel='h4' size='lg'>
-            Error searching for products
+            Error in Image Search
           </Title>
           <EmptyStateBody>
             There was an error while searching. Please try again.
+            {error instanceof Error && (
+              <div
+                style={{
+                  marginTop: '8px',
+                  fontStyle: 'italic',
+                  fontSize: '14px',
+                  opacity: 0.8,
+                }}
+              >
+                {error.message}
+              </div>
+            )}
           </EmptyStateBody>
         </EmptyState>
       </PageSection>
@@ -62,17 +69,17 @@ export function SearchResultsPage({ query }: SearchResultsPageProps) {
     <>
       <PageSection hasBodyWrapper={false}>
         <Title headingLevel={'h1'} style={{ marginTop: '15px' }}>
-          Search Results for "{query}"
+          Similar Products Found
         </Title>
 
         {products.length === 0 ? (
           <EmptyState>
             <Title headingLevel='h4' size='lg'>
-              No products found
+              No similar products found
             </Title>
             <EmptyStateBody>
-              No products match your search for "{query}". Try different
-              keywords.
+              No similar products found. Try a different image or search
+              criteria.
             </EmptyStateBody>
           </EmptyState>
         ) : (

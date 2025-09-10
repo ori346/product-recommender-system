@@ -1,5 +1,5 @@
 import { Skeleton, Title, Divider } from '@patternfly/react-core';
-import { GalleryView } from './Gallery';
+import { LazyProductGallery } from './LazyProductGallery';
 import { usePersonalizedRecommendations } from '../hooks/useRecommendations';
 import { ImageSearch } from './ImageSearch';
 
@@ -24,7 +24,12 @@ export function SearchPage() {
       ) : isError ? (
         <div>Error fetching products</div>
       ) : (
-        <GalleryView products={data ?? []} />
+        <LazyProductGallery
+          products={data ?? []}
+          title='Recommended Products'
+          showProductCount={true}
+          showScrollToTop={true}
+        />
       )}
     </div>
   );

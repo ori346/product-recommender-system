@@ -1,6 +1,6 @@
 import { PageSection, Title } from '@patternfly/react-core';
-import { GalleryView } from './Gallery';
 import { GallerySkeleton } from './gallery-skeleton';
+import { LazyProductGallery } from './LazyProductGallery';
 import { usePersonalizedRecommendations } from '../hooks/useRecommendations';
 
 export function CatalogPage() {
@@ -17,7 +17,11 @@ export function CatalogPage() {
         {isLoading ? (
           <GallerySkeleton count={12} />
         ) : (
-          <GalleryView products={products} />
+          <LazyProductGallery
+            products={products}
+            showProductCount={true}
+            showScrollToTop={true}
+          />
         )}
       </PageSection>
     </>
