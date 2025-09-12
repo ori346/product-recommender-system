@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProductReviewSummary, listProductReviews } from '../services/reviews';
+import {
+  getProductReviewSummary,
+  listProductReviews,
+} from '../services/reviews';
 
 export const useProductReviews = (
   productId: string,
@@ -21,4 +24,4 @@ export const useProductReviewSummary = (productId: string) => {
     enabled: !!productId,
     staleTime: 5 * 60 * 1000,
   });
-}; 
+};

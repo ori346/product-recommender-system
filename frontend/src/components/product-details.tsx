@@ -12,7 +12,10 @@ import StarRatings from 'react-star-ratings';
 import { useEffect } from 'react';
 import { useProductActions } from '../hooks';
 import { Route } from '../routes/_protected/product/$productId';
-import { useProductReviews, useProductReviewSummary } from '../hooks/useReviews';
+import {
+  useProductReviews,
+  useProductReviewSummary,
+} from '../hooks/useReviews';
 
 export const ProductDetails = () => {
   // loads productId from route /product/$productId
@@ -82,13 +85,14 @@ export const ProductDetails = () => {
                   <FlexItem>
                     <h3 style={{ marginTop: '1rem' }}>Reviews</h3>
                     {summaryQuery.isLoading ? (
-                      <Skeleton width="200px" />
+                      <Skeleton width='200px' />
                     ) : (
                       <div style={{ marginBottom: '0.5rem' }}>
                         <strong>{summaryQuery.data?.count || 0}</strong> reviews
                         {summaryQuery.data && (
                           <>
-                            {' '}• Average:{' '}
+                            {' '}
+                            • Average:{' '}
                             <StarRatings
                               rating={summaryQuery.data.avg_rating || 0}
                               starRatedColor='black'
@@ -96,20 +100,21 @@ export const ProductDetails = () => {
                               name='avg'
                               starDimension='14px'
                               starSpacing='1px'
-                            />
-                            {' '}
+                            />{' '}
                             {summaryQuery.data.avg_rating?.toFixed(1)}
                           </>
                         )}
                       </div>
                     )}
                     {reviewsQuery.isLoading ? (
-                      <Skeleton height="180px" />
+                      <Skeleton height='180px' />
                     ) : reviewsQuery.data && reviewsQuery.data.length > 0 ? (
                       <div>
                         {reviewsQuery.data.map(r => (
                           <div key={r.id} style={{ marginBottom: '0.75rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <div
+                              style={{ display: 'flex', alignItems: 'center' }}
+                            >
                               <StarRatings
                                 rating={r.rating}
                                 starRatedColor='black'
@@ -118,11 +123,18 @@ export const ProductDetails = () => {
                                 starDimension='14px'
                                 starSpacing='1px'
                               />
-                              <span style={{ marginLeft: '0.5rem', fontWeight: 600 }}>
+                              <span
+                                style={{
+                                  marginLeft: '0.5rem',
+                                  fontWeight: 600,
+                                }}
+                              >
                                 {r.title || 'Review'}
                               </span>
                             </div>
-                            <div style={{ fontSize: '0.9rem', color: '#444' }}>{r.comment}</div>
+                            <div style={{ fontSize: '0.9rem', color: '#444' }}>
+                              {r.comment}
+                            </div>
                             <div style={{ fontSize: '0.75rem', color: '#777' }}>
                               {new Date(r.created_at).toLocaleDateString()}
                             </div>
