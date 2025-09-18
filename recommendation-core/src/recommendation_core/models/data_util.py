@@ -274,7 +274,7 @@ def data_preproccess(df: pd.DataFrame):
     #     ["/.../usbc.png"],
     #     ["/.../stove.png"]
     # ]
-    #}   
+    #}
     return procceed_tensor_dict
 
 
