@@ -53,7 +53,7 @@ stages:
       status_code: 200
       verify_response_with:
         function: tests_helpers:validate_reviews_list
-  
+
   - name: add review
     request:
       url: "{tavern.env_vars.TEST_FRONTEND_URL}/products/{item_id}/reviews"
@@ -102,7 +102,7 @@ stages:
           rating: "{review_rating}"
           title: "{review_title}"
           comment: "{review_comment}"
-        
+
 
   - name: Get product reviews summary
     request:
