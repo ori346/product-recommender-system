@@ -282,15 +282,15 @@ def preprocess_pipeline(
     items_df: pd.DataFrame, users_df: pd.DataFrame, interactions_df: pd.DataFrame
 ):
     # Align the interactions with the users and items
-    items_df, users_df, inter_df = _align_and_clean_interactions(items_df, users_df, interactions_df)
+    item_df, user_df, inter_df = _align_and_clean_interactions(items_df, users_df, interactions_df)
     magnitude = torch.Tensor(_calculate_interaction_loss(inter_df).values)
 
-    logger.info(f"Number of rows in the items_df is: {len(items_df)}")
+    logger.info(f"Number of rows in the item_df is: {len(item_df)}")
     logger.info(f"Number of rows in the user_df is: {len(user_df)}")
     logger.info(f"Number of rows in the inter_df is: {len(inter_df)}")
 
     logger.info("Calling data_preproccess for items.")
-    item_dict = data_preproccess(items_df)
+    item_dict = data_preproccess(item_df)
     logger.info("Calling data_preproccess for users.")
     user_dict = data_preproccess(user_df)
 
