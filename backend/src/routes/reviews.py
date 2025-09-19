@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.db import get_db
 from database.models_sql import Review
-from models import ProductReview, ReviewSummary, ProductReviewCreate
+from models import ProductReview, ProductReviewCreate, ReviewSummary
 from routes.auth import get_current_user
 
 logger = logging.getLogger(__name__)

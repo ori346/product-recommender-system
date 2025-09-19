@@ -4,29 +4,25 @@ This should be run by a job once per cluster.
 """
 
 import asyncio
+import json
 import logging
+import os
+import random
+import re
 import subprocess
 import uuid
-from collections import deque
+from collections import Counter, deque
 from dataclasses import dataclass
 from pathlib import Path
 
+import httpx
 import pandas as pd
-from sqlalchemy import text
+from sqlalchemy import delete, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from database.db import get_engine
 from database.fetch_feast_users import seed_users
 from database.models_sql import Base, Category, Product, Review
-from pathlib import Path
-from sqlalchemy import text, select, func
-from sqlalchemy import delete
-import random
-import re
-from collections import Counter
-import os
-import json
-import httpx
 
 
 # Simple, description-aware review generators per rating
@@ -271,12 +267,16 @@ async def _generate_reviews_with_llm(
             "LLM_API_BASE and LLM_API_KEY must be set when USE_LLM_FOR_REVIEWS is enabled"
         )
 
-    sys_prompt = "You write succinct, realistic e-commerce reviews. Respond ONLY with JSON matching the schema."
+    sys_prompt = (
+        "You write succinct, realistic e-commerce reviews."
+        " Respond ONLY with JSON matching the schema."
+    )
     constraints = [
         f"Generate exactly {num_reviews} reviews.",
         f"Allowed ratings: {sorted(set(allowed_ratings))}.",
         "Titles <= 6 words; do not include product or brand names.",
-        f"Comments {min_words}-{max_words} words; reference relevant aspects from the description.",
+        f"Comments {min_words}-{max_words} words; reference relevant aspects "
+        f"from the description.",
     ]
     if required_ratings:
         constraints.append(
@@ -303,7 +303,8 @@ async def _generate_reviews_with_llm(
 
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     logger.info(
-        f"[LLM] Calling chat/completions model={model} base={api_base} num={num_reviews} allowed={allowed_ratings} required={required_ratings}"
+        f"[LLM] Calling chat/completions model={model} base={api_base} "
+        f"num={num_reviews} allowed={allowed_ratings} required={required_ratings}"
     )
     async with httpx.AsyncClient(timeout=timeout_s) as client:
         resp = await client.post(f"{api_base}/chat/completions", headers=headers, json=payload)
@@ -343,7 +344,9 @@ def _get_reviews_cache_path() -> str:
 async def _load_reviews_from_cache(session: AsyncSession) -> int:
     """
     Load reviews from a JSON cache file if it exists. Returns number of reviews inserted.
-    Expected JSON structure: {"products": [{"item_id": str, "reviews": [{"rating": int, "title": str, "comment": str}, ...]}]}
+    Expected JSON structure:
+     {"products": [{"item_id": str, "reviews": [{"rating": int, "title": str,
+      "comment": str}, ...]}]}
     """
     cache_path = _get_reviews_cache_path()
     try:
@@ -399,7 +402,8 @@ async def _load_reviews_from_cache(session: AsyncSession) -> int:
 def _write_reviews_cache(cache_records: list[dict]) -> None:
     """
     Write the generated reviews to a JSON cache file for reuse.
-    cache_records: [{"item_id": str, "reviews": [{"rating": int, "title": str, "comment": str}, ...]}, ...]
+    cache_records:
+     [{"item_id": str, "reviews": [{"rating": int, "title": str, "comment": str}, ...]}, ...]
     """
     cache_path = _get_reviews_cache_path()
     try:
@@ -436,7 +440,10 @@ async def create_tables():
 async def populate_products():
     try:
         # Read parquet file containing categories in Category, Parent Category format
-        raw_items_file = "../../recommendation-core/src/recommendation_core/feature_repo/data/recommendation_items.parquet"  # noqa: E501
+        raw_items_file = (
+            "../../recommendation-core/src/recommendation_core/feature_repo/data/"
+            "recommendation_items.parquet"
+        )
 
         script_dir = Path(__file__).resolve().parent
         data_file_path = script_dir / raw_items_file
@@ -467,7 +474,9 @@ async def populate_products():
             )
             SELECT path, leaf_id, c2.name
             FROM CategoryPaths cp join category c2 on cp.leaf_id = c2.category_id
-            WHERE cp.category_id NOT IN (SELECT parent_id FROM category WHERE parent_id IS NOT NULL)
+            WHERE cp.category_id NOT IN (
+                SELECT parent_id FROM category WHERE parent_id IS NOT NULL
+            )
             ORDER BY path
             """  # noqa: E501
 
@@ -515,7 +524,10 @@ async def populate_products():
 async def populate_categories():
     try:
         # Read parquet file containing categories in Category, Parent Category format
-        raw_categories_file = "../../recommendation-core/src/recommendation_core/feature_repo/data/category_relationships.parquet"  # noqa: E501
+        raw_categories_file = (
+            "../../recommendation-core/src/recommendation_core/feature_repo/data/"
+            "category_relationships.parquet"
+        )
 
         script_dir = Path(__file__).resolve().parent
         data_file_path = script_dir / raw_categories_file
@@ -568,9 +580,11 @@ async def populate_reviews(
 ):
     """
     Generate synthetic, description-aware reviews for each product.
-    Ensures ratings range from 1..5 are represented per product, with 5-10 total reviews by default.
-    If skip_if_exists is True and no reviews exist at all, generate; otherwise, top-up per product to minimum and fill missing ratings.
-    """
+    Ensures ratings range from 1..5 are represented per product, with 5-10 total reviews by
+    default.
+    If skip_if_exists is True and no reviews exist at all, generate; otherwise, top-up per product to
+    minimum and fill missing ratings.
+    """  # noqa: E501
     if min_reviews_per_product < 5:
         min_reviews_per_product = 5
     if max_reviews_per_product < min_reviews_per_product:
@@ -582,7 +596,9 @@ async def populate_reviews(
     async with SessionLocal() as session:
         # Log LLM-related env
         logger.info(
-            f"[Reviews] USE_LLM_FOR_REVIEWS={_use_llm_for_reviews()} model={os.getenv('LLM_MODEL')} base={os.getenv('LLM_API_BASE')} timeout={os.getenv('LLM_TIMEOUT')}"
+            f"[Reviews] USE_LLM_FOR_REVIEWS={_use_llm_for_reviews()} "
+            f"model={os.getenv('LLM_MODEL')} base={os.getenv('LLM_API_BASE')} "
+            f"timeout={os.getenv('LLM_TIMEOUT')}"
         )
         # If table is completely empty, we'll do a full generation pass
         total_existing = (await session.execute(select(func.count(Review.id)))).scalar_one()
@@ -590,7 +606,8 @@ async def populate_reviews(
         logger.info(f"[Reviews] Table empty={table_empty} existing_count={total_existing}")
         if skip_if_exists and not table_empty:
             logger.info(
-                "ℹ️ Reviews table has data; will top-up per product to minimum and ensure coverage."
+                "ℹ️ Reviews table has data; will top-up per product to minimum and "
+                "ensure coverage."
             )
 
         # If table empty, try loading from JSON cache first
@@ -683,7 +700,8 @@ async def populate_reviews(
                         if llm_reviews:
                             for r in llm_reviews:
                                 logger.info(
-                                    f"[LLM] product={item_id} name={name} rating={r.get('rating')} title={r.get('title')} comment={r.get('comment')}"
+                                    f"[LLM] product={item_id} name={name} rating={r.get('rating')}"
+                                    f" title={r.get('title')} comment={r.get('comment')}"
                                 )
                             for r in llm_reviews:
                                 to_add.append(
@@ -755,7 +773,9 @@ async def populate_reviews(
                             {"rating": rating, "title": title, "comment": content}
                         )
                 logger.info(
-                    f"[Reviews] product={item_id} name={name} mode=positive-only used={'LLM' if used_llm else 'PY'} newly_added={len(new_reviews_for_product)}"
+                    f"[Reviews] product={item_id} name={name} mode=positive-only "
+                    f"used={'LLM' if used_llm else 'PY'} "
+                    f"newly_added={len(new_reviews_for_product)}"
                 )
             elif is_negative_only:
                 # Remove existing positive reviews (>=4 stars) for negative-only products
@@ -799,7 +819,8 @@ async def populate_reviews(
                         if llm_reviews:
                             for r in llm_reviews:
                                 logger.info(
-                                    f"[LLM] product={item_id} name={name} rating={r.get('rating')} title={r.get('title')} comment={r.get('comment')}"
+                                    f"[LLM] product={item_id} name={name} rating={r.get('rating')}"
+                                    f" title={r.get('title')} comment={r.get('comment')}"
                                 )
                             for r in llm_reviews:
                                 to_add.append(
@@ -871,7 +892,9 @@ async def populate_reviews(
                             {"rating": rating, "title": title, "comment": content}
                         )
                 logger.info(
-                    f"[Reviews] product={item_id} name={name} mode=negative-only used={'LLM' if used_llm else 'PY'} newly_added={len(new_reviews_for_product)}"
+                    f"[Reviews] product={item_id} name={name} mode=negative-only "
+                    f"used={'LLM' if used_llm else 'PY'} "
+                    f"newly_added={len(new_reviews_for_product)}"
                 )
             else:
                 # Current reviews for this product (all ratings)
@@ -908,7 +931,8 @@ async def populate_reviews(
                         if llm_reviews:
                             for r in llm_reviews:
                                 logger.info(
-                                    f"[LLM] product={item_id} name={name} rating={r.get('rating')} title={r.get('title')} comment={r.get('comment')}"
+                                    f"[LLM] product={item_id} name={name} rating={r.get('rating')}"
+                                    f" title={r.get('title')} comment={r.get('comment')}"
                                 )
                             for r in llm_reviews:
                                 to_add.append(
@@ -977,7 +1001,9 @@ async def populate_reviews(
                             {"rating": rating, "title": title, "comment": content}
                         )
                 logger.info(
-                    f"[Reviews] product={item_id} name={name} mode=mixed used={'LLM' if used_llm else 'PY'} newly_added={len(new_reviews_for_product)}"
+                    f"[Reviews] product={item_id} name={name} mode=mixed "
+                    f"used={'LLM' if used_llm else 'PY'} "
+                    f"newly_added={len(new_reviews_for_product)}"
                 )
 
             # Track per-product records for JSON cache
@@ -989,7 +1015,8 @@ async def populate_reviews(
             session.add_all(to_add)
             await session.commit()
             logger.info(
-                f"[Reviews] Created {total_new} reviews across {len(products_rows)} products (top-up mode={not table_empty})."
+                f"[Reviews] Created {total_new} reviews across {len(products_rows)} products "
+                f"(top-up mode={not table_empty})."
             )
             # If we used the LLM for any product and table was empty, write cache for future reuse
             if any_llm_used and table_empty and cache_records:

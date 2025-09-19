@@ -6,7 +6,11 @@ export const listProductReviews = async (
   limit: number = 100,
   offset: number = 0
 ): Promise<ProductReview[]> => {
-  ServiceLogger.logServiceCall('listProductReviews', { productId, limit, offset });
+  ServiceLogger.logServiceCall('listProductReviews', {
+    productId,
+    limit,
+    offset,
+  });
   return apiRequest<ProductReview[]>(
     `/products/${encodeURIComponent(productId)}/reviews?limit=${limit}&offset=${offset}`,
     'listProductReviews'
