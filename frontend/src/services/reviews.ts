@@ -1,5 +1,9 @@
 import { apiRequest, ServiceLogger } from './api';
-import type { ProductReview, ReviewSummary } from '../types';
+import type {
+  ProductReview,
+  ReviewSummary,
+  ReviewSummarization,
+} from '../types';
 
 export const listProductReviews = async (
   productId: string,
@@ -24,5 +28,15 @@ export const getProductReviewSummary = async (
   return apiRequest<ReviewSummary>(
     `/products/${encodeURIComponent(productId)}/reviews/summary`,
     'getProductReviewSummary'
+  );
+};
+
+export const summarizeProductReviews = async (
+  productId: string
+): Promise<ReviewSummarization> => {
+  ServiceLogger.logServiceCall('summarizeProductReviews', { productId });
+  return apiRequest<ReviewSummarization>(
+    `/products/${encodeURIComponent(productId)}/reviews/summarize`,
+    'summarizeProductReviews'
   );
 };

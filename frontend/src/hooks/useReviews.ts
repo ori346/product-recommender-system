@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   getProductReviewSummary,
   listProductReviews,
+  summarizeProductReviews,
 } from '../services/reviews';
 
 export const useProductReviews = (
@@ -23,5 +24,17 @@ export const useProductReviewSummary = (productId: string) => {
     queryFn: () => getProductReviewSummary(productId),
     enabled: !!productId,
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useProductReviewSummarization = (
+  productId: string,
+  enabled: boolean = false
+) => {
+  return useQuery({
+    queryKey: ['reviews', productId, 'summarization'],
+    queryFn: () => summarizeProductReviews(productId),
+    enabled: !!productId && enabled,
+    staleTime: 10 * 60 * 1000,
   });
 };
