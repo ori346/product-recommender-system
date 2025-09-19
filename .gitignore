@@ -198,3 +198,6 @@ build/
 # IDE files
 .vscode/
 .idea/
+
+# local files
+build_tests.sh
