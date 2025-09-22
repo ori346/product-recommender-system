@@ -216,6 +216,10 @@ env:
     value: "llama-3-3-70b-instruct-w8a8"
   - name: LLM_TIMEOUT
     value: "60"
+  - name: OLLAMA_MODEL
+    value: "meta-llama/Llama-3.1-8B-Instruct"
+  - name: MODEL_ENDPOINT
+    value: "http://llama-3-1-8b-instruct-predictor-kickstart-llms.apps.ai-dev02.kni.syseng.devcluster.openshift.com/v1"
 
 minio:
   env:
@@ -293,6 +297,9 @@ modelRegistry:
 
   # Database configuration
   database:
+    # Database name for the model registry database
+    name: "model-registry-db"
+
     # Database credentials
     credentials:
       databaseName: "model_registry"
@@ -332,4 +339,4 @@ modelRegistry:
       # MySQL specific configuration
       mysql:
         datadir: /var/lib/mysql/datadir
-        authPlugin: mysql_native_password
+        authPlugin: caching_sha2_password

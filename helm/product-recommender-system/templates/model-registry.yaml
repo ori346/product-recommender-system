@@ -12,6 +12,9 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: modelregistry
     app.kubernetes.io/part-of: model-registry-operator
+  annotations:
+    modelregistry.opendatahub.io/wait-for-database: "true"
+    modelregistry.opendatahub.io/depends-on: "{{ .Values.modelRegistry.database.name }}"
 spec:
   grpc:
     port: {{ .Values.modelRegistry.spec.grpc.port }}
@@ -30,10 +33,10 @@ spec:
     tlsMode: {{ .Values.modelRegistry.spec.istio.tlsMode }}
   mysql:
     database: {{ .Values.modelRegistry.spec.mysql.database }}
-    host: {{ .Values.modelRegistry.spec.mysql.host }}
+    host: {{ .Values.modelRegistry.database.name }}
     passwordSecret:
       key: {{ .Values.modelRegistry.spec.mysql.passwordSecret.key }}
-      name: {{ .Values.modelRegistry.spec.mysql.passwordSecret.name }}
+      name: {{ .Values.modelRegistry.database.name }}
     port: {{ .Values.modelRegistry.spec.mysql.port }}
     skipDBCreation: {{ .Values.modelRegistry.spec.mysql.skipDBCreation }}
     username: {{ .Values.modelRegistry.spec.mysql.username }}
@@ -44,21 +47,21 @@ spec:
 {{- end }}
 ---
 {{- if .Values.modelRegistry.enabled }}
-{{- $secretExists := (lookup "v1" "Secret" .Values.modelRegistry.namespace "model-registry-db") }}
+{{- $secretExists := (lookup "v1" "Secret" .Values.modelRegistry.namespace .Values.modelRegistry.database.name) }}
 {{- if not $secretExists }}
 apiVersion: v1
 kind: Secret
 metadata:
   labels:
-    app.kubernetes.io/name: model-registry-db
-    app.kubernetes.io/instance: model-registry-db
-    app.kubernetes.io/part-of: model-registry-db
+    app.kubernetes.io/name: {{ .Values.modelRegistry.database.name }}
+    app.kubernetes.io/instance: {{ .Values.modelRegistry.database.name }}
+    app.kubernetes.io/part-of: {{ .Values.modelRegistry.database.name }}
     app.kubernetes.io/managed-by: Helm
   annotations:
     template.openshift.io/expose-database_name: '{.data[''database-name'']}'
     template.openshift.io/expose-password: '{.data[''database-password'']}'
     template.openshift.io/expose-username: '{.data[''database-user'']}'
-  name: model-registry-db
+  name: {{ .Values.modelRegistry.database.name }}
   namespace: {{ .Values.modelRegistry.namespace }}
 stringData:
   database-name: "{{ .Values.modelRegistry.database.credentials.databaseName }}"
@@ -68,19 +71,19 @@ stringData:
 {{- end }}
 ---
 {{- if .Values.modelRegistry.enabled }}
-{{- $serviceExists := (lookup "v1" "Service" .Values.modelRegistry.namespace "model-registry-db") }}
+{{- $serviceExists := (lookup "v1" "Service" .Values.modelRegistry.namespace .Values.modelRegistry.database.name) }}
 {{- if not $serviceExists }}
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app.kubernetes.io/name: model-registry-db
-    app.kubernetes.io/instance: model-registry-db
-    app.kubernetes.io/part-of: model-registry-db
+    app.kubernetes.io/name: {{ .Values.modelRegistry.database.name }}
+    app.kubernetes.io/instance: {{ .Values.modelRegistry.database.name }}
+    app.kubernetes.io/part-of: {{ .Values.modelRegistry.database.name }}
     app.kubernetes.io/managed-by: Helm
   annotations:
     template.openshift.io/expose-uri: mysql://{.spec.clusterIP}:{.spec.ports[?(.name==\mysql\)].port}
-  name: model-registry-db
+  name: {{ .Values.modelRegistry.database.name }}
   namespace: {{ .Values.modelRegistry.namespace }}
 spec:
   ports:
@@ -91,24 +94,24 @@ spec:
     appProtocol: tcp
     targetPort: {{ .Values.modelRegistry.database.service.targetPort }}
   selector:
-    name: model-registry-db
+    name: {{ .Values.modelRegistry.database.name }}
   sessionAffinity: None
   type: {{ .Values.modelRegistry.database.service.type }}
 {{- end }}
 {{- end }}
 ---
 {{- if .Values.modelRegistry.enabled }}
-{{- $pvcExists := (lookup "v1" "PersistentVolumeClaim" .Values.modelRegistry.namespace "model-registry-db") }}
+{{- $pvcExists := (lookup "v1" "PersistentVolumeClaim" .Values.modelRegistry.namespace .Values.modelRegistry.database.name) }}
 {{- if not $pvcExists }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    app.kubernetes.io/name: model-registry-db
-    app.kubernetes.io/instance: model-registry-db
-    app.kubernetes.io/part-of: model-registry-db
+    app.kubernetes.io/name: {{ .Values.modelRegistry.database.name }}
+    app.kubernetes.io/instance: {{ .Values.modelRegistry.database.name }}
+    app.kubernetes.io/part-of: {{ .Values.modelRegistry.database.name }}
     app.kubernetes.io/managed-by: Helm
-  name: model-registry-db
+  name: {{ .Values.modelRegistry.database.name }}
   namespace: {{ .Values.modelRegistry.namespace }}
 spec:
   accessModes:
@@ -122,32 +125,32 @@ spec:
 {{- end }}
 ---
 {{- if .Values.modelRegistry.enabled }}
-{{- $deploymentExists := (lookup "apps/v1" "Deployment" .Values.modelRegistry.namespace "model-registry-db") }}
+{{- $deploymentExists := (lookup "apps/v1" "Deployment" .Values.modelRegistry.namespace .Values.modelRegistry.database.name) }}
 {{- if not $deploymentExists }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app.kubernetes.io/name: model-registry-db
-    app.kubernetes.io/instance: model-registry-db
-    app.kubernetes.io/part-of: model-registry-db
+    app.kubernetes.io/name: {{ .Values.modelRegistry.database.name }}
+    app.kubernetes.io/instance: {{ .Values.modelRegistry.database.name }}
+    app.kubernetes.io/part-of: {{ .Values.modelRegistry.database.name }}
     app.kubernetes.io/managed-by: Helm
   annotations:
     template.alpha.openshift.io/wait-for-ready: "true"
-  name: model-registry-db
+  name: {{ .Values.modelRegistry.database.name }}
   namespace: {{ .Values.modelRegistry.namespace }}
 spec:
   replicas: {{ .Values.modelRegistry.database.deployment.replicas }}
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      name: model-registry-db
+      name: {{ .Values.modelRegistry.database.name }}
   strategy:
     type: {{ .Values.modelRegistry.database.deployment.strategy.type }}
   template:
     metadata:
       labels:
-        name: model-registry-db
+        name: {{ .Values.modelRegistry.database.name }}
         sidecar.istio.io/inject: "false"
     spec:
       containers:
@@ -156,22 +159,22 @@ spec:
           valueFrom:
             secretKeyRef:
               key: database-user
-              name: model-registry-db
+              name: {{ .Values.modelRegistry.database.name }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
               key: database-password
-              name: model-registry-db
+              name: {{ .Values.modelRegistry.database.name }}
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               key: database-password
-              name: model-registry-db
+              name: {{ .Values.modelRegistry.database.name }}
         - name: MYSQL_DATABASE
           valueFrom:
             secretKeyRef:
               key: database-name
-              name: model-registry-db
+              name: {{ .Values.modelRegistry.database.name }}
         args:
           - --datadir
           - {{ .Values.modelRegistry.database.deployment.mysql.datadir }}
@@ -205,13 +208,13 @@ spec:
         terminationMessagePath: /dev/termination-log
         volumeMounts:
         - mountPath: /var/lib/mysql
-          name: model-registry-db-data
+          name: {{ .Values.modelRegistry.database.name }}-data
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       volumes:
-      - name: model-registry-db-data
+      - name: {{ .Values.modelRegistry.database.name }}-data
         persistentVolumeClaim:
-          claimName: model-registry-db
+          claimName: {{ .Values.modelRegistry.database.name }}
 {{- end }}
 {{- end }}
 ---

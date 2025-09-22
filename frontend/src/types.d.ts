@@ -65,3 +65,8 @@ export interface ReviewSummary {
   count: number;
   avg_rating: number;
 }
+
+export interface ReviewSummarization {
+  productId: string;
+  summary: string;
+}

@@ -55,6 +55,11 @@ class ReviewSummary(BaseModel):
     avg_rating: float
 
 
+class ReviewSummarization(BaseModel):
+    productId: str
+    summary: str
+
+
 class ProductReviewCreate(BaseModel):
     rating: int = Field(ge=1, le=5)
     title: Optional[str] = ""

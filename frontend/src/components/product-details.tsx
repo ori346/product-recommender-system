@@ -9,13 +9,14 @@ import {
   Skeleton,
 } from '@patternfly/react-core';
 import StarRatings from 'react-star-ratings';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useProductActions } from '../hooks';
 import { Route } from '../routes/_protected/product/$productId';
 import {
   useProductReviews,
   useProductReviewSummary,
 } from '../hooks/useReviews';
+import { ReviewSummarizationModal } from './ReviewSummarizationModal';
 
 export const ProductDetails = () => {
   // loads productId from route /product/$productId
@@ -28,6 +29,16 @@ export const ProductDetails = () => {
   // Reviews data
   const reviewsQuery = useProductReviews(productId);
   const summaryQuery = useProductReviewSummary(productId);
+
+  // State for review summarization modal
+  const [showSummarizeModal, setShowSummarizeModal] = useState(false);
+  const [shouldSummarize, setShouldSummarize] = useState(false);
+
+  // Handler for summarize button click
+  const handleSummarizeClick = () => {
+    setShouldSummarize(true);
+    setShowSummarizeModal(true);
+  };
 
   // Record that user viewed this product when component mounts or productId changes
   useEffect(() => {
@@ -83,7 +94,46 @@ export const ProductDetails = () => {
                   <FlexItem headers='h1'>${product.actual_price}</FlexItem>
                   <FlexItem>{product.about_product}</FlexItem>
                   <FlexItem>
-                    <h3 style={{ marginTop: '1rem' }}>Reviews</h3>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginTop: '1rem',
+                      }}
+                    >
+                      <h3 style={{ margin: 0 }}>Reviews</h3>
+                      {reviewsQuery.data && reviewsQuery.data.length > 0 && (
+                        <Button
+                          variant='secondary'
+                          size='sm'
+                          onClick={handleSummarizeClick}
+                          style={{
+                            background:
+                              'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            color: 'white',
+                            border: 'none',
+                            fontWeight: '600',
+                            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                            transition: 'all 0.3s ease',
+                            transform: 'translateY(0)',
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.transform =
+                              'translateY(-2px)';
+                            e.currentTarget.style.boxShadow =
+                              '0 6px 20px rgba(102, 126, 234, 0.6)';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow =
+                              '0 4px 15px rgba(102, 126, 234, 0.4)';
+                          }}
+                        >
+                          AI Summarize ✨
+                        </Button>
+                      )}
+                    </div>
                     {summaryQuery.isLoading ? (
                       <Skeleton width='200px' />
                     ) : (
@@ -165,6 +215,17 @@ export const ProductDetails = () => {
           </FlexItem>
         </>
       )}
+
+      {/* Review Summarization Modal */}
+      <ReviewSummarizationModal
+        productId={productId}
+        isOpen={showSummarizeModal}
+        onClose={() => {
+          setShowSummarizeModal(false);
+          setShouldSummarize(false);
+        }}
+        enabled={shouldSummarize}
+      />
     </>
   );
 };

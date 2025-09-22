@@ -101,7 +101,7 @@ echo "=== Step 3: Installing Product Recommender System ==="
 cd /app/helm
 if ! make SHELL=/bin/bash install NAMESPACE=$TESTING_NAMESPACE minio.userId=minio minio.password=minio123; then
     echo "❌ Installation failed"
-    curl -X POST -H 'Content-type: application/json' --data "{\"text\": "❌ Prouduct recommender system installation failed at $TIMESTAMP ❌"}" $SLACK_WEBHOOK
+    curl -X POST -H 'Content-type: application/json' --data "{\"text\": '❌ Prouduct recommender system installation failed at $TIMESTAMP ❌'}" $SLACK_WEBHOOK
     cleanup_and_exit 1
 fi
 

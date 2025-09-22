@@ -1,0 +1,213 @@
+---
+test_name: Test Product reviews Happy Path
+
+stages:
+  - name: Signup user for product tests
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/auth/signup"
+      method: POST
+      json:
+        email: "test{tavern.env_vars.TEST_TIMESTAMP}_reviews@test.com"
+        password: "password123"
+        age: 40
+        gender: "Male"
+    response:
+      status_code: 201
+
+  - name: Login to get token
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/auth/login"
+      method: POST
+      json:
+        email: "test{tavern.env_vars.TEST_TIMESTAMP}_reviews@test.com"
+        password: "password123"
+    response:
+      status_code: 200
+      save:
+        json:
+          token: "token"
+          user_id: "user.user_id"
+
+  - name: Search product
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/products/search?query=laptop&k=2"
+      method: GET
+      headers:
+        Authorization: "Bearer {token}"
+        Content-Type: "application/json"
+    response:
+      status_code: 200
+      save:
+        json:
+          item_id: "[0].item_id"
+          item_id1: "[1].item_id"
+
+  - name: Get product reviews
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/products/{item_id}/reviews"
+      method: GET
+      headers:
+        Authorization: "Bearer {token}"
+        Content-Type: "application/json"
+    response:
+      status_code: 200
+      verify_response_with:
+        function: tests_helpers:validate_reviews_list
+
+  - name: add review
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/products/{item_id}/reviews"
+      method: POST
+      headers:
+        Authorization: "Bearer {token}"
+        Content-Type: "application/json"
+      json:
+        rating: 5
+        title: "Test review"
+        comment: "Test comment"
+    response:
+      status_code: 201
+      json:
+        id: !anyint
+        productId: "{item_id}"
+        userId: "{user_id}"
+        rating: 5
+        title: "Test review"
+        comment: "Test comment"
+        created_at: !anystr
+      save:
+        json:
+          review_id: "id"
+          review_productId: "productId"
+          review_userId: "userId"
+          review_rating: "rating"
+          review_title: "title"
+          review_comment: "comment"
+          review_created_at: "created_at"
+
+  - name: verify review
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/products/{item_id}/reviews"
+      method: GET
+      headers:
+        Authorization: "Bearer {token}"
+        Content-Type: "application/json"
+    response:
+      status_code: 200
+      verify_response_with:
+        function: tests_helpers:validate_review_exists_by_fields
+        extra_kwargs:
+          productId: "{review_productId}"
+          userId: "{review_userId}"
+          rating: "{review_rating}"
+          title: "{review_title}"
+          comment: "{review_comment}"
+
+
+  - name: Get product reviews summary
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/products/{item_id1}/reviews/summarize"
+      method: GET
+      headers:
+        Authorization: "Bearer {token}"
+        Content-Type: "application/json"
+    response:
+      status_code: 200
+      json:
+        summary: !anystr
+        productId: "{item_id1}"
+
+---
+test_name: Test Product reviews non existent product
+
+
+stages:
+  - name: Signup user for product tests
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/auth/signup"
+      method: POST
+      json:
+        email: "test{tavern.env_vars.TEST_TIMESTAMP}_reviews_ne@test.com"
+        password: "password123"
+        age: 72
+        gender: "Female"
+    response:
+      status_code: 201
+
+  - name: Login to get token
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/auth/login"
+      method: POST
+      json:
+        email: "test{tavern.env_vars.TEST_TIMESTAMP}_reviews_ne@test.com"
+        password: "password123"
+    response:
+      status_code: 200
+      save:
+        json:
+          token: "token"
+
+  - name: Get product reviews non existent product
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/products/NONEXISTENT123/reviews"
+      method: GET
+      headers:
+        Authorization: "Bearer {token}"
+        Content-Type: "application/json"
+    response:
+      status_code: 500
+      json:
+        detail: "Failed to fetch reviews"
+
+  - name: Get summary reviews non existent product
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/products/NONEXISTENT123/reviews/summary"
+      method: GET
+      headers:
+        Authorization: "Bearer {token}"
+        Content-Type: "application/json"
+    response:
+      status_code: 500
+      json:
+        detail: "Failed to compute review summary"
+
+---
+test_name: Test summarize reviews for Non existent product
+
+stages:
+  - name: Signup user for product tests
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/auth/signup"
+      method: POST
+      json:
+        email: "test{tavern.env_vars.TEST_TIMESTAMP}_summarize_non_existent@test.com"
+        password: "password123"
+        age: 16
+        gender: "Female"
+    response:
+      status_code: 201
+
+  - name: Login to get token
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/auth/login"
+      method: POST
+      json:
+        email: "test{tavern.env_vars.TEST_TIMESTAMP}_summarize_non_existent@test.com"
+        password: "password123"
+    response:
+      status_code: 200
+      save:
+        json:
+          token: "token"
+
+  - name: Summarize reviews for non existent product
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/products/NONEXISTENT123/reviews/summarize"
+      method: GET
+      headers:
+        Authorization: "Bearer {token}"
+        Content-Type: "application/json"
+    response:
+      status_code: 500
+      json:
+        detail: "Failed to summarize reviews"
