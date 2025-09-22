@@ -116,7 +116,7 @@ cd /app/tests/integration
 
 # Run integration tests and capture output
 echo "Running integration tests and capturing output..."
-TEST_OUTPUT=$(NAMESPACE=rec-sys-ofridman bash run_integration_tests.sh 2>&1)
+TEST_OUTPUT=$(NAMESPACE=$TESTING_NAMESPACE bash run_integration_tests.sh 2>&1)
 TEST_EXIT_CODE=$?
 
 # Escape the output for JSON and create a proper payload

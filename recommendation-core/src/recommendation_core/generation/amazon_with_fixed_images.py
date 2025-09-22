@@ -38,7 +38,7 @@ def main():
 
     item_df["img_link"] = item_df.apply(function, axis=1)
     item_df.to_csv(base / "amazon_with_fixed_images.csv", index=False)
-    logger.info("fixed images:", fixed, " / ", total)
+    logger.info(f"fixed images: {fixed} / {total}")
 
 
 if __name__ == "__main__":

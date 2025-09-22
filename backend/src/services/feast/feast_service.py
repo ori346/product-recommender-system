@@ -147,7 +147,7 @@ class FeastService:
         top_k = self.store.retrieve_online_documents(
             query=user_embed.tolist(), top_k=k, features=["item_embedding:item_id"]
         )
-        logger.info("Retrieved documents from store:", top_k.to_df())
+        logger.info(f"Retrieved documents from store: {top_k.to_df()}")
         top_item_ids = top_k.to_df()["item_id"].tolist()
         return self._item_ids_to_product_list(top_item_ids)
 
