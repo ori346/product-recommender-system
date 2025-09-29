@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { ProductData } from '../types';
+import { DEFAULT_BATCH_SIZE, DEFAULT_INITIAL_BATCH_SIZE } from '../constants';
 
 interface UseLazyScrollOptions {
   initialBatchSize?: number;
@@ -18,6 +19,7 @@ interface UseLazyScrollReturn {
   loadingRef: React.RefObject<HTMLDivElement>;
   containerRef: React.RefObject<HTMLDivElement>;
   reset: () => void;
+  showScrollToTop: boolean;
 }
 
 /**
@@ -29,8 +31,8 @@ export const useLazyScroll = (
   options: UseLazyScrollOptions = {}
 ): UseLazyScrollReturn => {
   const {
-    initialBatchSize = 18,
-    batchSize = 18,
+    initialBatchSize = DEFAULT_INITIAL_BATCH_SIZE,
+    batchSize = DEFAULT_BATCH_SIZE,
     loadingDelay = 300,
     rootMargin = '100px',
     threshold = 0.1,
@@ -39,6 +41,7 @@ export const useLazyScroll = (
   const [displayedProducts, setDisplayedProducts] = useState<ProductData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(initialBatchSize);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingRef = useRef<HTMLDivElement>(null);
@@ -74,9 +77,14 @@ export const useLazyScroll = (
   ]);
 
   const scrollToTop = useCallback(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    const pageMain =
+      document.querySelector('.pf-v6-c-page__main') ||
+      document.querySelector('[data-ouia-component-type="Page"]') ||
+      document.querySelector('.pf-c-page__main') ||
+      document.querySelector('main');
+
+    const target = pageMain || window;
+    target.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const reset = useCallback(() => {
@@ -84,6 +92,32 @@ export const useLazyScroll = (
     setCurrentIndex(initialBatchSize);
     setIsLoadingMore(false);
   }, [products, initialBatchSize]);
+
+  // Simple scroll handler for top button
+  useEffect(() => {
+    const getScrollContainer = () => {
+      return (
+        document.querySelector('.pf-v6-c-page__main') ||
+        document.querySelector('[data-ouia-component-type="Page"]') ||
+        document.querySelector('.pf-c-page__main') ||
+        document.querySelector('main')
+      );
+    };
+
+    const handleScroll = () => {
+      const pageMain = getScrollContainer();
+      const scrollTop = pageMain
+        ? pageMain.scrollTop
+        : window.pageYOffset || document.documentElement.scrollTop;
+      setShowScrollToTop(scrollTop > 300);
+    };
+
+    const scrollContainer = getScrollContainer();
+    const target = scrollContainer || window;
+
+    target.addEventListener('scroll', handleScroll);
+    return () => target.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Set up intersection observer for infinite scroll
   useEffect(() => {
@@ -117,5 +151,6 @@ export const useLazyScroll = (
     loadingRef,
     containerRef,
     reset,
+    showScrollToTop,
   };
 };

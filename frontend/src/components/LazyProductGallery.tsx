@@ -4,6 +4,7 @@ import { ArrowUpIcon } from '@patternfly/react-icons';
 import { GalleryView } from './Gallery';
 import { useLazyScroll } from '../hooks/useLazyScroll';
 import type { ProductData } from '../types';
+import { DEFAULT_BATCH_SIZE, DEFAULT_INITIAL_BATCH_SIZE } from '../constants';
 
 interface LazyProductGalleryProps {
   products: ProductData[];
@@ -25,8 +26,8 @@ export const LazyProductGallery: React.FC<LazyProductGalleryProps> = ({
   title,
   showProductCount = true,
   showScrollToTop = true,
-  initialBatchSize = 18,
-  batchSize = 18,
+  initialBatchSize = DEFAULT_INITIAL_BATCH_SIZE,
+  batchSize = DEFAULT_BATCH_SIZE,
   loadingDelay = 300,
   className,
 }) => {
@@ -37,6 +38,7 @@ export const LazyProductGallery: React.FC<LazyProductGalleryProps> = ({
     scrollToTop,
     loadingRef,
     containerRef,
+    showScrollToTop: hookShowScrollToTop,
   } = useLazyScroll(products, {
     initialBatchSize,
     batchSize,
@@ -109,7 +111,7 @@ export const LazyProductGallery: React.FC<LazyProductGalleryProps> = ({
       )}
 
       {/* Return to Top Button */}
-      {showScrollToTop && (
+      {(showScrollToTop || hookShowScrollToTop) && (
         <Button
           variant={ButtonVariant.primary}
           onClick={scrollToTop}
