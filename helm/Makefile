@@ -153,7 +153,7 @@ product-recommender-install:
 		$(EXTRA_HELM_ARGS) --set strimzi-kafka-operator.createGlobalResources=false --timeout 300m
 	@oc rollout status deploy
 	@echo "$(PRODUCT_RECOMMENDER_CHART) installed successfully"
-	@echo "Frontend URL: http://$$(oc get route product-recommender-system-frontend -o jsonpath='{.spec.host}' -n $(NAMESPACE))"
+	@echo "Frontend URL: https://$$(oc get route product-recommender-system-frontend -o jsonpath='{.spec.host}' -n $(NAMESPACE))"
 
 # Uninstall the deployment and clean up
 .PHONY: uninstall
