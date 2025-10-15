@@ -143,12 +143,13 @@ export const SimpleSignupPage: React.FunctionComponent = () => {
               if (!value || value.length < 2 || value.length > 50) {
                 return undefined; // Let onChange validation handle these cases
               }
-              
+
               // Add a small delay to debounce the API calls
               await new Promise(resolve => setTimeout(resolve, 500));
-              
+
               try {
-                const isAvailable = await authService.checkDisplayNameAvailability(value);
+                const isAvailable =
+                  await authService.checkDisplayNameAvailability(value);
                 if (!isAvailable) {
                   return 'Display name is already taken';
                 }
@@ -161,7 +162,11 @@ export const SimpleSignupPage: React.FunctionComponent = () => {
           }}
         >
           {field => (
-            <FormGroup label='Display Name' isRequired fieldId='simple-form-display-name-02'>
+            <FormGroup
+              label='Display Name'
+              isRequired
+              fieldId='simple-form-display-name-02'
+            >
               <TextInput
                 isRequired
                 type='text'
@@ -191,17 +196,18 @@ export const SimpleSignupPage: React.FunctionComponent = () => {
                   Checking availability...
                 </div>
               )}
-              {!field.state.meta.isValidating && field.state.meta.errors.length > 0 && (
-                <div
-                  style={{
-                    color: '#c9190b',
-                    fontSize: '14px',
-                    marginTop: '4px',
-                  }}
-                >
-                  {field.state.meta.errors[0]}
-                </div>
-              )}
+              {!field.state.meta.isValidating &&
+                field.state.meta.errors.length > 0 && (
+                  <div
+                    style={{
+                      color: '#c9190b',
+                      fontSize: '14px',
+                      marginTop: '4px',
+                    }}
+                  >
+                    {field.state.meta.errors[0]}
+                  </div>
+                )}
             </FormGroup>
           )}
         </form.Field>

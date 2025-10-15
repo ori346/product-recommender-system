@@ -76,7 +76,9 @@ class LoginRequest(BaseModel):
 class SignUpRequest(BaseModel):
     email: str
     password: str
-    display_name: str = Field(min_length=2, max_length=50, description="Display name for public use (required)")
+    display_name: str = Field(
+        min_length=2, max_length=50, description="Display name for public use (required)"
+    )
     age: int = Field(gt=0, description="Age must be positive")
     gender: str
 
@@ -115,7 +117,7 @@ class Order(BaseModel):
 class CategoryTree(BaseModel):
     category_id: str
     name: str
-    subcategories: List['CategoryTree'] = []
+    subcategories: List["CategoryTree"] = []
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -27,6 +27,20 @@ stages:
         json:
           token: "token"
 
+  - name: Get categories to find valid category ID
+    request:
+      url: "{tavern.env_vars.TEST_FRONTEND_URL}/users/categories"
+      method: GET
+      headers:
+        Authorization: "Bearer {token}"
+        Content-Type: "application/json"
+    response:
+      status_code: 200
+      save:
+        json:
+          first_category_id: "[0].category_id"
+          second_category_id: "[1].category_id"
+
   - name: Set user preferences
     request:
       url: "{tavern.env_vars.TEST_FRONTEND_URL}/users/preferences"
@@ -35,7 +49,7 @@ stages:
         Authorization: "Bearer {token}"
         Content-Type: "application/json"
       json:
-        preferences: "Electronics,Computers&Accessories"
+        category_ids: ["{first_category_id}", "{second_category_id}"]
     response:
       status_code: 200
 

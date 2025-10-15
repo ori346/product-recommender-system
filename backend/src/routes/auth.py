@@ -9,8 +9,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.db import get_db
-from database.models_sql import User, UserPreference, Category
-from models import AuthResponse, LoginRequest, SignUpRequest, CategoryTree
+from database.models_sql import Category, User, UserPreference
+from models import AuthResponse, CategoryTree, LoginRequest, SignUpRequest
 from models import User as UserResponse
 from services.security import (
     ALGORITHM,
@@ -34,11 +34,7 @@ async def load_user_preferences(db: AsyncSession, user_id: str) -> list[Category
     user_categories = user_prefs_query.all()
 
     return [
-        CategoryTree(
-            category_id=str(cat.category_id),
-            name=cat.name,
-            subcategories=[]
-        )
+        CategoryTree(category_id=str(cat.category_id), name=cat.name, subcategories=[])
         for cat in user_categories
     ]
 
@@ -100,9 +96,11 @@ async def signup(
         result = await db.execute(select(User).where(User.email == payload.email))
         if result.scalar_one_or_none():
             raise HTTPException(400, "Email already registered")
-        
+
         # Check for duplicate display names
-        display_name_result = await db.execute(select(User).where(User.display_name == payload.display_name))
+        display_name_result = await db.execute(
+            select(User).where(User.display_name == payload.display_name)
+        )
         if display_name_result.scalar_one_or_none():
             raise HTTPException(400, "Display name already taken")
 
