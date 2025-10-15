@@ -83,7 +83,9 @@ async def seed_users():
         # Generate emails and passwords for remaining Feast users only
         users_to_add["email"] = users_to_add["user_id"].astype(str).apply(generate_email)
         users_to_add["password"] = users_to_add["user_id"].apply(lambda _: generate_password())
-        users_to_add["display_name"] = users_to_add["user_id"].astype(str).apply(generate_display_name)
+        users_to_add["display_name"] = (
+            users_to_add["user_id"].astype(str).apply(generate_display_name)
+        )
 
         # Create User objects in batch
         user_objects = (
@@ -218,7 +220,10 @@ async def _create_test_users(db, existing_user_ids: set):
             test_user = User(
                 user_id=user_data["user_id"],
                 email=user_data["email"],
-                display_name=user_data.get("display_name", user_data.get("description", f"User {user_data['user_id'][-4:]}")),  # Use display_name, fallback to description, then generated name
+                display_name=user_data.get(
+                    "display_name",
+                    user_data.get("description", f"User {user_data['user_id'][-4:]}"),
+                ),  # Use display_name, fallback to description, then generated name
                 age=user_data["age"],
                 gender=user_data["gender"],
                 signup_date=date.today(),

@@ -1,19 +1,28 @@
-from fastapi import APIRouter, Depends, Query, status, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, text, desc, delete
-from typing import List
 import logging
-import uuid
 import random
+import uuid
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import delete, func, select, text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.db import get_db
-from database.models_sql import User, Category, Product as SQLProduct, StreamInteraction, UserPreference
-from services.database_service import db_service
-from services.feast.feast_service import FeastService
-from models import AuthResponse, PreferencesRequest, CategoryTree, Product, InteractionType
-from models import OnboardingProductsResponse, OnboardingSelectionRequest, OnboardingSelectionResponse
+from database.models_sql import Category, StreamInteraction, User, UserPreference
+from models import (
+    AuthResponse,
+    CategoryTree,
+    InteractionType,
+    OnboardingProductsResponse,
+    OnboardingSelectionRequest,
+    OnboardingSelectionResponse,
+    PreferencesRequest,
+    Product,
+)
 from models import User as UserResponse
 from routes.auth import create_access_token, get_current_user
+from services.database_service import db_service
+from services.feast.feast_service import FeastService
 
 logger = logging.getLogger(__name__)
 
@@ -36,30 +45,25 @@ async def set_preferences(
         if prefs.category_ids:
             # Verify all category IDs exist in database
             category_check = await db.execute(
-                select(Category.category_id)
-                .where(Category.category_id.in_([uuid.UUID(cid) for cid in prefs.category_ids]))
+                select(Category.category_id).where(
+                    Category.category_id.in_([uuid.UUID(cid) for cid in prefs.category_ids])
+                )
             )
             valid_categories = [str(cat.category_id) for cat in category_check.all()]
 
             if len(valid_categories) != len(prefs.category_ids):
                 invalid_ids = set(prefs.category_ids) - set(valid_categories)
                 raise HTTPException(
-                    status_code=400,
-                    detail=f"Invalid category IDs: {list(invalid_ids)}"
+                    status_code=400, detail=f"Invalid category IDs: {list(invalid_ids)}"
                 )
 
         # === STEP 2: Clear existing UserPreference records ===
-        await db.execute(
-            delete(UserPreference).where(UserPreference.user_id == user.user_id)
-        )
+        await db.execute(delete(UserPreference).where(UserPreference.user_id == user.user_id))
 
         # === STEP 3: Create new UserPreference records ===
         if prefs.category_ids:
             new_preferences = [
-                UserPreference(
-                    user_id=user.user_id,
-                    category_id=uuid.UUID(category_id)
-                )
+                UserPreference(user_id=user.user_id, category_id=uuid.UUID(category_id))
                 for category_id in prefs.category_ids
             ]
             db.add_all(new_preferences)
@@ -68,8 +72,9 @@ async def set_preferences(
         if prefs.category_ids:
             # Get category names for legacy string field
             category_names_query = await db.execute(
-                select(Category.name)
-                .where(Category.category_id.in_([uuid.UUID(cid) for cid in prefs.category_ids]))
+                select(Category.name).where(
+                    Category.category_id.in_([uuid.UUID(cid) for cid in prefs.category_ids])
+                )
             )
             category_names = [cat.name for cat in category_names_query.all()]
             user.preferences = "|".join(category_names)
@@ -91,11 +96,7 @@ async def set_preferences(
             user_categories = user_prefs_query.all()
 
             user_preferences_response = [
-                CategoryTree(
-                    category_id=str(cat.category_id),
-                    name=cat.name,
-                    subcategories=[]
-                )
+                CategoryTree(category_id=str(cat.category_id), name=cat.name, subcategories=[])
                 for cat in user_categories
             ]
         else:
@@ -150,20 +151,19 @@ async def get_categories(
     result = await db.execute(query)
     all_categories = result.all()
 
-    # Build a dictionary for quick lookup
-    category_dict = {str(cat.category_id): cat for cat in all_categories}
-
     def build_tree(parent_id=None):
         """Recursively build the category tree."""
         children = []
         for cat in all_categories:
             if str(cat.parent_id) == parent_id if parent_id else cat.parent_id is None:
                 subcategories = build_tree(str(cat.category_id))
-                children.append(CategoryTree(
-                    category_id=str(cat.category_id),
-                    name=cat.name,
-                    subcategories=subcategories
-                ))
+                children.append(
+                    CategoryTree(
+                        category_id=str(cat.category_id),
+                        name=cat.name,
+                        subcategories=subcategories,
+                    )
+                )
         return children
 
     # Build and return the tree starting from root categories (parent_id is None)
@@ -182,10 +182,7 @@ async def get_parent_categories_only(
 ):
     """Get only parent categories (categories with no parent)."""
     # Query for parent categories only
-    query = (
-        select(Category.category_id, Category.name)
-        .where(Category.parent_id.is_(None))
-    )
+    query = select(Category.category_id, Category.name).where(Category.parent_id.is_(None))
 
     result = await db.execute(query)
     parent_categories = result.all()
@@ -194,7 +191,7 @@ async def get_parent_categories_only(
         CategoryTree(
             category_id=str(cat.category_id),
             name=cat.name,
-            subcategories=[]  # Empty array since we only want parents
+            subcategories=[],  # Empty array since we only want parents
         )
         for cat in parent_categories
     ]
@@ -217,7 +214,7 @@ async def get_subcategories(
         select(
             Category.category_id,
             Category.name,
-            func.count(Category.sub_categories).label("child_count")
+            func.count(Category.sub_categories).label("child_count"),
         )
         .where(Category.parent_id == category_id)
         .group_by(Category.category_id, Category.name)
@@ -230,10 +227,11 @@ async def get_subcategories(
         CategoryTree(
             category_id=str(subcat.category_id),
             name=subcat.name,
-            subcategories=[]  # Empty for now, could be populated recursively if needed
+            subcategories=[],  # Empty for now, could be populated recursively if needed
         )
         for subcat in subcategories
     ]
+
 
 @router.get(
     "/categories/{category_id}/top-products",
@@ -260,7 +258,8 @@ async def get_top_products_in_category(
         # Build query based on whether to include subcategories
         if include_subcategories:
             # Use recursive CTE to get all subcategories
-            query = text("""
+            query = text(
+                """
                 WITH RECURSIVE CategoryHierarchy AS (
                     SELECT category_id FROM category WHERE category_id = :category_id
                     UNION ALL
@@ -293,10 +292,12 @@ async def get_top_products_in_category(
                 ) interaction_counts ON p.item_id = interaction_counts.item_id
                 ORDER BY interaction_count DESC, p.avg_rating DESC
                 LIMIT :limit
-            """)
+            """
+            )
         else:
             # Single category query
-            query = text("""
+            query = text(
+                """
                 SELECT
                     p.item_id,
                     p.name,
@@ -322,12 +323,10 @@ async def get_top_products_in_category(
                 WHERE p.category_id = :category_id
                 ORDER BY interaction_count DESC, p.avg_rating DESC
                 LIMIT :limit
-            """)
+            """
+            )
 
-        result = await db.execute(query, {
-            "category_id": category_id,
-            "limit": limit
-        })
+        result = await db.execute(query, {"category_id": category_id, "limit": limit})
 
         products = result.fetchall()
 
@@ -375,7 +374,7 @@ async def _get_user_interaction_count(db: AsyncSession, user_id: str) -> int:
     """
     query = select(func.count(StreamInteraction.id)).where(
         StreamInteraction.user_id == user_id,
-        StreamInteraction.interaction_type == InteractionType.POSITIVE_VIEW.value
+        StreamInteraction.interaction_type == InteractionType.POSITIVE_VIEW.value,
     )
     result = await db.execute(query)
     return result.scalar() or 0
@@ -411,7 +410,8 @@ async def _get_products_from_user_categories(
             return []
 
         # Use recursive CTE to get products from all selected categories and their subcategories
-        query = text("""
+        query = text(
+            """
             WITH RECURSIVE CategoryHierarchy AS (
                 SELECT category_id FROM category WHERE category_id = ANY(:category_ids)
                 UNION ALL
@@ -444,12 +444,10 @@ async def _get_products_from_user_categories(
             ) interaction_counts ON p.item_id = interaction_counts.item_id
             ORDER BY interaction_count DESC, p.avg_rating DESC
             LIMIT :limit
-        """)
+        """
+        )
 
-        result = await db.execute(query, {
-            "category_ids": category_ids,
-            "limit": limit
-        })
+        result = await db.execute(query, {"category_ids": category_ids, "limit": limit})
 
         products = result.fetchall()
 
@@ -518,7 +516,9 @@ async def get_onboarding_products(
         # If we have fewer than 12 due to duplicates, get more random products
         if len(unique_products) < 12:
             additional_needed = 12 - len(unique_products)
-            additional_random = feast_service._load_random_items(k=additional_needed * 2)  # Get extra to account for potential duplicates
+            additional_random = feast_service._load_random_items(
+                k=additional_needed * 2
+            )  # Get extra to account for potential duplicates
 
             for product in additional_random:
                 if product.item_id not in seen_ids and len(unique_products) < 12:
@@ -565,8 +565,7 @@ async def save_onboarding_selections(
         # Validate round number
         if selections.round_number < 1 or selections.round_number > 3:
             raise HTTPException(
-                status_code=400,
-                detail="Invalid round number. Must be between 1 and 3."
+                status_code=400, detail="Invalid round number. Must be between 1 and 3."
             )
 
         # Check current interaction count before adding new ones
@@ -575,16 +574,12 @@ async def save_onboarding_selections(
         # Validate that we haven't exceeded limits
         if current_interactions >= 10:
             raise HTTPException(
-                status_code=400,
-                detail="Onboarding already completed with sufficient interactions"
+                status_code=400, detail="Onboarding already completed with sufficient interactions"
             )
 
         # Validate product selections
         if not selections.selected_product_ids:
-            raise HTTPException(
-                status_code=400,
-                detail="At least one product must be selected"
-            )
+            raise HTTPException(status_code=400, detail="At least one product must be selected")
 
         # Log interactions for each selected product
         interactions_logged = 0

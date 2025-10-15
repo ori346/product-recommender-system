@@ -181,10 +181,8 @@ async def summarize_reviews(
         #   - Total reviews = 10, target SUMMARIZE_MAX_REVIEWS = 6
         #   - Counts per rating = {1star:1, 2star:2, 3star:3, 4star:2, 5star:2}
         #   - Proportional quotas ≈ {1:1, 2:1, 3:2, 4:1, 5:1} (sum=6)
-        #   - Take that many most recent from each bucket and concatenate (e.g., 5star→4star→3star→2star→1star)
+        #   - Take that many most recent from each bucket and concatenate (e.g., 5star→4star→3star→2star→1star) # noqa: E501
         try:
-            import math
-
             max_reviews = int(os.getenv("SUMMARIZE_MAX_REVIEWS", "200"))
             if max_reviews <= 0:
                 max_reviews = 200
@@ -221,7 +219,11 @@ async def summarize_reviews(
                     # Prefer reducing buckets with the largest quotas > 1
                     while current > max_reviews:
                         # Pick bucket with max quota (>1) and available items
-                        r_max = max((rk for rk in quotas if quotas[rk] > 1), key=lambda k: quotas[k], default=None)
+                        r_max = max(
+                            (rk for rk in quotas if quotas[rk] > 1),
+                            key=lambda k: quotas[k],
+                            default=None,
+                        )
                         if r_max is None:
                             break
                         quotas[r_max] -= 1

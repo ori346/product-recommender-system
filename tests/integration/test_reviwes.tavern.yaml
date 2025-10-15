@@ -76,6 +76,7 @@ stages:
         title: "Test review"
         comment: "Test comment"
         created_at: !anystr
+        userName: null # Todo return the actual user name
       save:
         json:
           review_id: "id"

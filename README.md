@@ -4,13 +4,13 @@ See how AI can transform product discovery with personalized recommendations, sm
 
 ## Detailed description
 
-This quickstart shows how an e-commerce storefront can seamlessly integrate AI-driven product recommendations, automated review summarization, and enhanced search capabilities to improve customer engagement and conversion rates. 
+This quickstart shows how an e-commerce storefront can seamlessly integrate AI-driven product recommendations, automated review summarization, and enhanced search capabilities to improve customer engagement and conversion rates.
 
 * **Product recommendations** deliver personalized suggestions based on browsing history and product similarity, helping customers discover what they love.
 * **Review summaries** distill countless reviews into actionable information, accelerating buying decisions.
 * **Intelligent search** uses a hybrid approach with semantic and symbolic search understanding customer intent, making it easier to find the perfect item.
 
-See how customers can get a better experience while business owners unlock higher click-through rates, better conversations and strong customer loyalty. 
+See how customers can get a better experience while business owners unlock higher click-through rates, better conversations and strong customer loyalty.
 
 This quickstart is a complete, cloud-native product recommender system showcasing search, recommendations, reviews, and a Kubeflow training pipeline on OpenShift AI. Technical components include:
 - Backend (FastAPI) with PostgreSQL + pgvector + Feast
@@ -36,7 +36,7 @@ This quickstart is a complete, cloud-native product recommender system showcasin
 
 ---
 
-## Requirements 
+## Requirements
 
 ### Prerequisites
 - Access to an OpenShift cluster (with OpenShift AI installed)
@@ -45,9 +45,9 @@ This quickstart is a complete, cloud-native product recommender system showcasin
 
 Recommended OpenShift AI components enabled: DataSciencePipelines, Feast Operator, Model Registry, KServe/ModelMesh (Managed in your `DataScienceCluster`).
 
-### Minimum hardware requirements 
+### Minimum hardware requirements
 
-### Minimum software requirements 
+### Minimum software requirements
 
 ### Required user permissions
 
@@ -129,8 +129,8 @@ Detailed docs live in component READMEs:
 - License: same terms as Red Hat AI Quickstart
 - Contributions welcome via PRs; please update component READMEs when changing behavior
 
-## Tags 
+## Tags
 
 * **Industry:** Retail
-* **Product:** OpenShift AI 
-* **Use case:** Personalization 
+* **Product:** OpenShift AI
+* **Use case:** Personalization

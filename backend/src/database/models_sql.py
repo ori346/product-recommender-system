@@ -13,7 +13,9 @@ class User(Base):
 
     user_id: Mapped[str] = mapped_column(String(27), primary_key=True, index=True)
     email: Mapped[str] = mapped_column(String, unique=True, index=True)
-    display_name: Mapped[str] = mapped_column(String, nullable=False, unique=True, index=True)  # Required field for public display, must be unique
+    display_name: Mapped[str] = mapped_column(
+        String, nullable=False, unique=True, index=True
+    )  # Required field for public display, must be unique
     password: Mapped[str] = mapped_column(
         String, nullable=True
     )  # raw (used only for mock data/gen)
@@ -25,9 +27,7 @@ class User(Base):
     user_preferences: Mapped[list["UserPreference"]] = relationship(
         "UserPreference", back_populates="user"
     )
-    reviews: Mapped[list["Review"]] = relationship(
-        "Review", back_populates="user"
-    )
+    reviews: Mapped[list["Review"]] = relationship("Review", back_populates="user")
 
 
 class CartItem(Base):
@@ -113,7 +113,9 @@ class Review(Base):
     __tablename__ = "reviews"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     item_id: Mapped[str] = mapped_column(String, ForeignKey("products.item_id"), index=True)
-    user_id: Mapped[str] = mapped_column(String(27), ForeignKey("users.user_id"), nullable=True, index=True)
+    user_id: Mapped[str] = mapped_column(
+        String(27), ForeignKey("users.user_id"), nullable=True, index=True
+    )
     rating: Mapped[int] = mapped_column(Integer)  # 1..5
     title: Mapped[str] = mapped_column(Text, nullable=True)
     content: Mapped[str] = mapped_column(Text, nullable=True)
